@@ -41,6 +41,12 @@ const sacheader_variables = [
 :KUSER1,	:KUSER2,	:KCMPNM,
 :KNETWK,	:KDATRD,	:KINST]
 
+"""
+Enumerations for, well, SAC header enumerations. Names are the same as those
+defined in the SAC manual. See
+<http://ds.iris.edu/files/sac-manual/manual/file_format.html> for details on
+each enum. For a list of values, run `instances(SACHeaderEnum)`.
+"""
 @enum(SACHeaderEnum, undefined=-12345, itime=1, irlim, iamph, ixy, iunkn, idisp, ivel, iacc, ib,
       iday, io, ia, it0, it1, it2, it3, it4, it5, it6, it7, it8, it9, iradnv,
       itannv, iradev, itanev, inorth, ieast, ihorza, idown, iup, illlbb, iwwsn1,
