@@ -40,3 +40,13 @@ const sacheader_variables = [
 :KT9,	:KF,	:KUSER0,
 :KUSER1,	:KUSER2,	:KCMPNM,
 :KNETWK,	:KDATRD,	:KINST]
+
+@enum(SACHeaderEnum, itime=1, irlim, iamph, ixy, iunkn, idisp, ivel, iacc, ib,
+      iday, io, ia, it0, it1, it2, it3, it4, it5, it6, it7, it8, it9, iradnv,
+      itannv, iradev, itanev, inorth, ieast, ihorza, idown, iup, illlbb, iwwsn1,
+      iwwsn2, ihglp, isro, inucl, ipren, ipostn, iquake, ipreq, ipostq, ichem,
+      iother, igood, iglch, idrop, ilowsn, irldta, ivolts, imb=52, ims, iml, imw,
+      imd, imx, ineic, ipdeq, ipdew, ipde, iisc, ireb, iusgs, ibrk, icaltech,
+      illnl, ievloc, ijsop, iuser, iunknown, iqb, iqb1, iqb2, iqbx, iqmt, ieq,
+      ieq1, ieq2, ime, iex, inu, inc, io_, il, ir, it, iu, ieq3, ieq0, iex0,
+      iqc, iqb0, igey, ilit, imet, iodor, ios=103)
