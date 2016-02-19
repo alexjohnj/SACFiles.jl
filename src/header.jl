@@ -65,6 +65,9 @@ const sacheader_undefinedvars = Dict{Type,Any}(
                                                Bool          => false,
                                                ASCIIString   => "-12345.." :: ASCIIString)
 
+const sac_wordsize = 4
+const sachdr_nwords = 158
+
 """
 Construct fields of the same type for a composite type from a splat of
 symbols. `T` is the type and `fields...` is a splat of symbols to use for the
@@ -164,4 +167,93 @@ function set_undefinedvars!(hdr::SACDataHeader)
         end
     end
     return hdr
+end
+
+"""
+Description
+===========
+
+Read the header data (first 158 words / 632 bytes) from `f` and construct a
+SACDataHeader from the data.
+
+Side Effects
+============
+
+- The position in `f` will be placed at the start of the data section of the
+  file (632).
+
+Returns
+=======
+
+- `SACDataHeader` initialised with the header contents.
+"""
+function readsachdr(f::IOStream)
+    bs = readbytes(f, sac_wordsize * sachdr_nwords)
+    hdr = SACDataHeader()
+
+    decode_floats!(hdr, bs)
+    decode_integers!(hdr, bs)
+    decode_enumerations!(hdr, bs)
+    decode_logicals!(hdr, bs)
+    # decode_alphanumerics(hdr, bs)
+
+    return hdr
+end
+
+function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
+    # Floats take up words 0 through 69 of the header
+    hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
+    for idx in eachindex(hdr_floats)
+        val = sacheader_variables[idx]
+        if val == :INTERNAL || val == :UNUSED
+            continue
+        end
+        hdr.(val) = hdr_floats[idx]
+    end
+    return hdr_floats
+end
+
+function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
+    # Integers take up words 70 through 84 of the header
+    hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
+    for idx in eachindex(hdr_integers)
+        val = sacheader_variables[idx + 70]
+        if val == :INTERNAL || val == :UNUSED
+            continue
+        end
+        hdr.(val) = hdr_integers[idx]
+    end
+
+    return hdr_integers
+end
+
+function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
+    # Enumerations take up words 85 through 104 of the header
+    hdr_enumerations = reinterpret(SACHeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
+    for idx in eachindex(hdr_enumerations)
+        val = sacheader_variables[idx + 85]
+        if val == :INTERNAL || val == :UNUSED
+            continue
+        end
+        hdr.(val) = hdr_enumerations[idx]
+    end
+    return hdr_enumerations
+end
+
+function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
+    # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
+    # we convert them to Int32s first and then to Bools.
+    hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]))
+    for idx in eachindex(hdr_logicals)
+        val = sacheader_variables[idx + 105]
+        if val == :INTERNAL || val == :UNUSED
+            continue
+        end
+        hdr.(val) = hdr_logicals[idx]
+    end
+    return hdr_logicals
+end
+
+function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
+    # TODO
 end

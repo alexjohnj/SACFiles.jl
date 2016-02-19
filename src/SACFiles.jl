@@ -1,6 +1,6 @@
 module SACFiles
 
-export SACHeaderEnum, SACDataHeader
+export SACHeaderEnum, SACDataHeader, readsachdr
 
 include("header.jl")
 
