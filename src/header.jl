@@ -50,3 +50,47 @@ const sacheader_variables = [
       illnl, ievloc, ijsop, iuser, iunknown, iqb, iqb1, iqb2, iqbx, iqmt, ieq,
       ieq1, ieq2, ime, iex, inu, inc, io_, il, ir, it, iu, ieq3, ieq0, iex0,
       iqc, iqb0, igey, ilit, imet, iodor, ios=103)
+
+"""
+Construct fields of the same type for a composite type from a splat of
+symbols. `T` is the type and `fields...` is a splat of symbols to use for the
+fields. This macro explicitly checks if any of the symbols are `:UNUSED:` or
+`:INTERNAL` and avoids generating fields for these.
+"""
+macro makefields(T, fields...)
+    exp = :(begin end)
+    # Expand the fields arg from a tuple of expressions into a tuple of symbols.
+    p = eval(Expr(:call, :tuple, fields...))
+    for field in p
+        if field != :UNUSED && field != :INTERNAL
+            push!(exp.args, :($(field)::$(T)))
+        end
+    end
+    return exp
+end
+
+type SACDataHeader
+    @makefields(Float32, sacheader_variables[1:69]...)
+    @makefields(Int32, sacheader_variables[70:84]...)
+    @makefields(SACHeaderEnum, sacheader_variables[85:104]...)
+    @makefields(Bool, sacheader_variables[105:109]...)
+    @makefields(ASCIIString, sacheader_variables[110:end]...)
+
+
+    function SACDataHeader(npts::Int32, beginning::Float32, ending::Float32,
+                           ftype::SACHeaderEnum, even::Bool, delta::Float32;
+                           version::Int32=Int32(6))
+        hdr = SACDataHeader()
+        hdr.NPTS = npts
+        hdr.B = beginning
+        hdr.E = ending
+        hdr.IFTYPE = ftype
+        hdr.LEVEN = even
+        hdr.DELTA = delta
+        hdr.NVHDR = version
+
+        return hdr
+    end
+
+    SACDataHeader() = new()
+end
