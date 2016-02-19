@@ -83,6 +83,44 @@ macro makefields(T, fields...)
     return exp
 end
 
+"""
+Description
+===========
+
+`SACDataHeader` represents the header of a SAC file. Fields are initialised with
+the default undefined values for Floats, Ints, Enumerations, Bools and Strings
+as described in the SAC manual.
+
+Fields
+======
+
+Fields have the same name as their header variables in SAC. See
+<http://ds.iris.edu/files/sac-manual/manual/file_format.html> for details on
+each one. The different header types become the following Julia types:
+
+- Floating     => Float32
+- Integer      => Int32
+- Enumerated   => SACHeaderEnum
+- Logical      => Bool
+- Alphanumeric => ASCIIString
+
+Constructors
+============
+
+The best way to create a new header is to use:
+
+`SACDataHeader(npts::Int32, beginning::Float32, ending::Float32, ftype::SACHeaderEnum, even::Bool, delta::Float32; version::Int32=Int32(6))`
+
+This will create a *valid* SAC header with the required fields initialised and
+other fields set to their undefined values. You can create an empty header using
+`SACDataHeader()` but required fields will be initialised to their undefined
+values so the header will be invalid.
+
+See Also
+========
+
+`SACHeaderEnum` for information on the possible enumerated values.
+"""
 type SACDataHeader
     @makefields(Float32, sacheader_variables[1:69]...)
     @makefields(Int32, sacheader_variables[70:84]...)
