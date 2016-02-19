@@ -51,6 +51,14 @@ const sacheader_variables = [
       ieq1, ieq2, ime, iex, inu, inc, io_, il, ir, it, iu, ieq3, ieq0, iex0,
       iqc, iqb0, igey, ilit, imet, iodor, ios=103)
 
+# Undefined values for different data types, as given in the SAC manual.
+const sacheader_undefinedvars = Dict{Type,Any}(
+                                               Float32       => Float32(-12345.0),
+                                               Int32         => Int32(-12345),
+                                               SACHeaderEnum => Int32(-12345),
+                                               Bool          => false,
+                                               ASCIIString   => "-12345.." :: ASCIIString)
+
 """
 Construct fields of the same type for a composite type from a splat of
 symbols. `T` is the type and `fields...` is a splat of symbols to use for the
@@ -92,5 +100,24 @@ type SACDataHeader
         return hdr
     end
 
-    SACDataHeader() = new()
+    SACDataHeader() = (hdr = new(); set_undefinedvars!(hdr))
+end
+
+"""
+Set all the fields of `hdr::SACDataHeader` to their undefined values as
+specified in the SAC manual.
+"""
+function set_undefinedvars!(hdr::SACDataHeader)
+    map(fieldnames(hdr)) do field
+        # Accessing undefined ASCIIString fields produces an exception so here
+        # we check for a string by looking at the first character of the
+        # symbol. According to the SAC docs, if the first character is 'K' then
+        # its an alphanumeric variable.
+        if string(field)[1] == 'K'
+            hdr.(field) = sacheader_undefinedvars[ASCIIString]
+        else
+            hdr.(field) = sacheader_undefinedvars[typeof(hdr.(field))]
+        end
+    end
+    return hdr
 end
