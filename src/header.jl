@@ -195,7 +195,7 @@ function readsachdr(f::IOStream)
     decode_integers!(hdr, bs)
     decode_enumerations!(hdr, bs)
     decode_logicals!(hdr, bs)
-    # decode_alphanumerics(hdr, bs)
+    decode_alphanumerics!(hdr, bs)
 
     return hdr
 end
@@ -255,5 +255,20 @@ function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
 end
 
 function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
-    # TODO
+    # Alphanumeric variables take up words 110 through 157 of the header. With
+    # the exception of "KENVM", they're all two words (8 characters) long. That
+    # one's four words (16 characters) long.
+
+    alpha_bs = bs[sac_wordsize * 110 + 1 : sac_wordsize * (157+1)]
+    hdr.KSTNM = ascii(alpha_bs[1:sac_wordsize * 2]) # First two words of alphanumeric header
+    hdr.KEVNM = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
+
+    rel_word = 6 # Up to word six
+    while rel_word <= 46 # Remaining words to read
+        val = sacheader_variables[113 + div(rel_word-6, 2)] # Starting from the 113th variable, KHOLE
+        hdr.(val) = ascii(alpha_bs[sac_wordsize * rel_word + 1 : sac_wordsize * (rel_word + 2)])
+        rel_word += 2
+    end
+
+    return nothing
 end
