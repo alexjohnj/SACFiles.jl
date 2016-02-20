@@ -200,6 +200,9 @@ function readsachdr(f::IOStream)
     return hdr
 end
 
+"Decode the floating type header variables from the header bytes `bs` and set
+the appropriate fields in `hdr`. Returns an `Array{Float32,1}` of decoded
+floats."
 function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Floats take up words 0 through 69 of the header
     hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
@@ -213,6 +216,8 @@ function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
     return hdr_floats
 end
 
+"Decode the integer type header variables from the header bytes `bs` and set the
+appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
 function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Integers take up words 70 through 84 of the header
     hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
@@ -227,6 +232,9 @@ function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
     return hdr_integers
 end
 
+"Decode the enumeration type header variables from the header bytes `bs` and set
+the appropriate fields in `hdr`. Returns an `Array{SACHeaderEnum,1}` of decoded
+enumerations."
 function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Enumerations take up words 85 through 104 of the header
     hdr_enumerations = reinterpret(SACHeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
@@ -240,6 +248,8 @@ function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
     return hdr_enumerations
 end
 
+"Decode the logical type header variables from the header bytes `bs` and set the
+appropriate fields in `hdr`. Returns an `Array{Bool,1}` of decoded bools.`"
 function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
     # we convert them to Int32s first and then to Bools.
@@ -254,6 +264,8 @@ function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
     return hdr_logicals
 end
 
+"Decode the alphanumeric type header variables from the header bytes `bs` ans
+set the appropriate fields in `hdr`. Returns `nothing`."
 function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Alphanumeric variables take up words 110 through 157 of the header. With
     # the exception of "KENVM", they're all two words (8 characters) long. That
