@@ -6,7 +6,7 @@ what is/isn't/will be implemented:
 
 [sac-site]: http://ds.iris.edu/ds/nodes/dmc/software/downloads/sac/
 
-- [ ] Reading header variables (partially complete, can read the first 109 words/436 bytes).
+- [x] Reading header variables (needs testing).
 - [ ] Reading first data section from time series files.
 - [ ] Reading second data section from spectral files (amplitude/phase and real/imaginary).
 - [ ] Reading second data section from uneven time series files.
