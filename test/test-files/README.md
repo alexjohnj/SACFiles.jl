@@ -18,3 +18,8 @@ completely invalid and can't be read into SAC. The variables are set as follows:
 
 The variable `KEVNM` is set to "BLEEPBLOOPBLEEPS" because its longer than the
 other alphanumeric variables. The data section is simply 100 zero values.
+
+## `test-seismo.sac`
+
+A synthetic seismogram generated using `funcgen seismo` in SAC. Used to test
+header reading on a non hex edited file.
