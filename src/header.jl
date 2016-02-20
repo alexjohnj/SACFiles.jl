@@ -63,7 +63,7 @@ const sacheader_undefinedvars = Dict{Type,Any}(
                                                Int32         => Int32(-12345),
                                                SACHeaderEnum => Int32(-12345),
                                                Bool          => false,
-                                               ASCIIString   => "-12345.." :: ASCIIString)
+                                               ASCIIString   => "-12345  " :: ASCIIString)
 
 const sac_wordsize = 4
 const sachdr_nwords = 158
