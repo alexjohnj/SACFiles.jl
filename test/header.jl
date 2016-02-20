@@ -40,22 +40,11 @@ open("./test-files/test-hexed-header.sac", "r") do f
     end
 end
 
-# Test header reading on a synthetic seismogram
+# Test header reading functions on a synthetic SAC generated seismogram
+testhdr = Utils.make_test_seismo_hdr()
 open("./test-files/test-seismo.sac", "r") do f
     inhdr = readsachdr(f)
-    testhdr = Utils.make_test_seismo_hdr()
-
-    for val in SACFiles.sacheader_variables
-        if val == :UNUSED || val == :INTERNAL
-            continue
-        end
-
-        if typeof(testhdr.(val)) == Float32
-            @test_approx_eq inhdr.(val) testhdr.(val)
-        else
-            @test inhdr.(val) == testhdr.(val)
-        end
-    end
+    Utils.testhdrequal(inhdr, testhdr)
 end
 
 end

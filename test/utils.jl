@@ -1,4 +1,5 @@
 module Utils
+using Base.Test
 using SACFiles
 
 "Creates an instance of `SACDataHeader` with the fields manually initialised to
@@ -41,6 +42,19 @@ function make_test_seismo_hdr()
     hdr.NZMSEC = 0
 
     return hdr
+end
+
+"Test the equality of each field between two `SACDataHeader` instances using
+`@test` and `@test_approx_eq` for floating fields."
+function testhdrequal(hdra::SACDataHeader, hdrb::SACDataHeader)
+    for field in fieldnames(hdra)
+        if typeof(hdra.(field)) == Float32
+            @test_approx_eq hdra.(field) hdrb.(field)
+        else
+            @test hdra.(field) == hdrb.(field)
+        end
+    end
+    return nothing
 end
 
 end
