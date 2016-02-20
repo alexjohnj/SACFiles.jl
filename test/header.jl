@@ -9,6 +9,12 @@ map(ids, enums) do id, enum
     @test SACHeaderEnum(id) == enum
 end
 
+# Make sure we're reading the whole header
+open("./test-files/test-seismo.sac", "r") do f
+    _ = readsachdr(f)
+    @test position(f) == 632
+end
+
 # Test header reading on a hexed file.
 open("./test-files/test-hexed-header.sac", "r") do f
     inhdr = readsachdr(f)
