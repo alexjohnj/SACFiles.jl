@@ -46,5 +46,6 @@ open("./test-files/test-seismo.sac", "r") do f
     inhdr = readsachdr(f)
     Utils.testhdrequal(inhdr, testhdr)
 end
+Utils.testhdrequal(readsachdr("./test-files/test-seismo.sac"), testhdr)
 
 end

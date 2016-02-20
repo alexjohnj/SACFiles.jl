@@ -169,24 +169,8 @@ function set_undefinedvars!(hdr::SACDataHeader)
     return hdr
 end
 
-"""
-Description
-===========
-
-Read the header data (first 158 words / 632 bytes) from `f` and construct a
-SACDataHeader from the data.
-
-Side Effects
-============
-
-- The position in `f` will be placed at the start of the data section of the
-  file (632).
-
-Returns
-=======
-
-- `SACDataHeader` initialised with the header contents.
-"""
+"Read the header data (first 158 words) from the stream `f` returning a
+`SACDataHeader` instance constructed from it."
 function readsachdr(f::IOStream)
     bs = readbytes(f, sac_wordsize * sachdr_nwords)
     hdr = SACDataHeader()
@@ -198,6 +182,12 @@ function readsachdr(f::IOStream)
     decode_alphanumerics!(hdr, bs)
 
     return hdr
+end
+
+"Read the header data (first 158 words) from the file at path `fname` returning
+a `SACDataHeader` instance constructed from it."
+function readsachdr(fname::AbstractString)
+    return open(readsachdr, fname, "r")
 end
 
 "Decode the floating type header variables from the header bytes `bs` and set
