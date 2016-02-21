@@ -27,11 +27,11 @@ open("./test-files/test-hexed-header.sac", "r") do f
     testhdr = SACDataHeader()
 
     for val in SACFiles.sacheader_variables
-        if val == :UNUSED || val == :INTERNAL
+        if val == :unused || val == :internal
             continue
         end
 
-        if val == :KEVNM
+        if val == :kenvm
             testhdr.(val) = ascii("BLEEPBLOOPBLEEPS")
         else
             testhdr.(val) = hdr_hexedvalues[typeof(testhdr.(val))]

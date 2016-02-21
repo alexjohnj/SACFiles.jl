@@ -6,40 +6,40 @@
 # see: http://ds.iris.edu/files/sac-manual/manual/file_format.html
 const sacheader_variables = [
 # Float32 variables
-:DELTA, :DEPMIN, :DEPMAX, :SCALE, :ODELTA,
-:B, :E, :O, :A, :INTERNAL,
-:T0, :T1, :T2, :T3, :T4,
-:T5, :T6, :T7, :T8, :T9,
-:F, :RESP0, :RESP1, :RESP2, :RESP3,
-:RESP4, :RESP5, :RESP6, :RESP7, :RESP8,
-:RESP9,	:STLA,	:STLO,	:STEL,	:STDP,
-:EVLA,	:EVLO,	:EVEL,	:EVDP,	:MAG,
-:USER0,	:USER1,	:USER2,	:USER3,	:USER4,
-:USER5,	:USER6,	:USER7,	:USER8,	:USER9,
-:DIST, :AZ, :BAZ, :GCARC, :INTERNAL,
-:INTERNAL, :DEPMEN,	:CMPAZ,	:CMPINC,	:XMINIMUM,
-:XMAXIMUM,	:YMINIMUM,	:YMAXIMUM,	:UNUSED,	:UNUSED,
-:UNUSED,	:UNUSED,	:UNUSED,	:UNUSED,	:UNUSED,
-# End of Floats. Start (word 70) of integers and enumerations
-:NZYEAR,	:NZJDAY,	:NZHOUR,	:NZMIN,	:NZSEC,
-:NZMSEC, :NVHDR,  :NORID,	:NEVID,	:NPTS,
-:INTERNAL, :NWFID,	:NXSIZE,	:NYSIZE,	:UNUSED,
-:IFTYPE,  :IDEP,	:IZTYPE,	:UNUSED,	:IINST,
-:ISTREG,  :IEVREG,	:IEVTYP,	:IQUAL,	:ISYNTH,
-:IMAGTYP,	:IMAGSRC,	:UNUSED,	:UNUSED,	:UNUSED,
-:UNUSED,	:UNUSED,	:UNUSED,	:UNUSED,	:UNUSED,
-# End of integers and enumerations. Start (word 105) of logical variables.
-:LEVEN,	:LPSPOL,	:LOVROK,	:LCALDA,	:UNUSED,
-# End of logical variables. Start of alphanumeric variables. All are 2 words long
-# except KEVNM which is four words long.
-:KSTNM,	:KEVNM,
-:KHOLE,	:KO, :KA,
-:KT0,	:KT1,	:KT2,
-:KT3,	:KT4,	:KT5,
-:KT6,	:KT7,	:KT8,
-:KT9,	:KF,	:KUSER0,
-:KUSER1,	:KUSER2,	:KCMPNM,
-:KNETWK,	:KDATRD,	:KINST]
+:delta, :depmin, :depmax, :scale, :odelta,
+:b, :e, :o, :a, :internal,
+:t0, :t1, :t2, :t3, :t4,
+:t5, :t6, :t7, :t8, :t9,
+:f, :resp0, :resp1, :resp2, :resp3,
+:resp4, :resp5, :resp6, :resp7, :resp8,
+:resp9,	:stla,	:stlo,	:stel,	:stdp,
+:evla,	:evlo,	:evel,	:evdp,	:mag,
+:user0,	:user1,	:user2,	:user3,	:user4,
+:user5,	:user6,	:user7,	:user8,	:user9,
+:dist, :az, :baz, :gcarc, :internal,
+:internal, :depmen,	:cmpaz,	:cmpinc,	:xminimum,
+:xmaximum,	:yminimum,	:ymaximum,	:unused,	:unused,
+:unused,	:unused,	:unused,	:unused,	:unused,
+# end of floats. start (word 70) of integers and enumerations
+:nzyear,	:nzjday,	:nzhour,	:nzmin,	:nzsec,
+:nzmsec, :nvhdr,  :norid,	:nevid,	:npts,
+:internal, :nwfid,	:nxsize,	:nysize,	:unused,
+:iftype,  :idep,	:iztype,	:unused,	:iinst,
+:istreg,  :ievreg,	:ievtyp,	:iqual,	:isynth,
+:imagtyp,	:imagsrc,	:unused,	:unused,	:unused,
+:unused,	:unused,	:unused,	:unused,	:unused,
+# end of integers and enumerations. start (word 105) of logical variables.
+:leven,	:lpspol,	:lovrok,	:lcalda,	:unused,
+# end of logical variables. start of alphanumeric variables. all are 2 words long
+# except kevnm which is four words long.
+:kstnm,	:kevnm,
+:khole,	:ko, :ka,
+:kt0,	:kt1,	:kt2,
+:kt3,	:kt4,	:kt5,
+:kt6,	:kt7,	:kt8,
+:kt9,	:kf,	:kuser0,
+:kuser1,	:kuser2,	:kcmpnm,
+:knetwk,	:kdatrd,	:kinst]
 
 """
 Enumerations for, well, SAC header enumerations. Names are the same as those
@@ -125,24 +125,155 @@ See Also
 `SACHeaderEnum` for information on the possible enumerated values.
 """
 type SACDataHeader
-    @makefields(Float32, sacheader_variables[1:69]...)
-    @makefields(Int32, sacheader_variables[70:84]...)
-    @makefields(SACHeaderEnum, sacheader_variables[85:104]...)
-    @makefields(Bool, sacheader_variables[105:109]...)
-    @makefields(ASCIIString, sacheader_variables[110:end]...)
-
+    delta::Float32
+    depmin::Float32
+    depmax::Float32
+    scale::Float32
+    odelta::Float32
+    b::Float32
+    e::Float32
+    o::Float32
+    a::Float32
+    internal1::Float32
+    t0::Float32
+    t1::Float32
+    t2::Float32
+    t3::Float32
+    t4::Float32
+    t5::Float32
+    t6::Float32
+    t7::Float32
+    t8::Float32
+    t9::Float32
+    f::Float32
+    resp0::Float32
+    resp1::Float32
+    resp2::Float32
+    resp3::Float32
+    resp4::Float32
+    resp5::Float32
+    resp6::Float32
+    resp7::Float32
+    resp8::Float32
+    resp9::Float32
+    stla::Float32
+    stlo::Float32
+    stel::Float32
+    stdp::Float32
+    evla::Float32
+    evlo::Float32
+    evel::Float32
+    evdp::Float32
+    mag::Float32
+    user0::Float32
+    user1::Float32
+    user2::Float32
+    user3::Float32
+    user4::Float32
+    user5::Float32
+    user6::Float32
+    user7::Float32
+    user8::Float32
+    user9::Float32
+    dist::Float32
+    az::Float32
+    baz::Float32
+    gcarc::Float32
+    internal2::Float32
+    internal3::Float32
+    depmen::Float32
+    cmpaz::Float32
+    cmpinc::Float32
+    xminimum::Float32
+    xmaximum::Float32
+    yminimum::Float32
+    ymaximum::Float32
+    unused1::Float32
+    unused2::Float32
+    unused3::Float32
+    unused4::Float32
+    unused5::Float32
+    unused6::Float32
+    unused7::Float32
+    # Integers
+    nzyear::Int32
+    nzjday::Int32
+    nzhour::Int32
+    nzmin::Int32
+    nzsec::Int32
+    nzmsec::Int32
+    nvhdr::Int32
+    norid::Int32
+    nevid::Int32
+    npts::Int32
+    internal4::Int32
+    nwfid::Int32
+    nxsize::Int32
+    nysize::Int32
+    unused8::Int32
+    # Enumerations
+    iftype::SACHeaderEnum
+    idep::SACHeaderEnum
+    iztype::SACHeaderEnum
+    unused9::SACHeaderEnum
+    iinst::SACHeaderEnum
+    istreg::SACHeaderEnum
+    ievreg::SACHeaderEnum
+    ievtyp::SACHeaderEnum
+    iqual::SACHeaderEnum
+    isynth::SACHeaderEnum
+    imagtyp::SACHeaderEnum
+    imagsrc::SACHeaderEnum
+    unused10::SACHeaderEnum
+    unused11::SACHeaderEnum
+    unused12::SACHeaderEnum
+    unused13::SACHeaderEnum
+    unused14::SACHeaderEnum
+    unused15::SACHeaderEnum
+    unused16::SACHeaderEnum
+    unused17::SACHeaderEnum
+    # Logical Variables
+    leven::Bool
+    lpspol::Bool
+    lovrok::Bool
+    lcalda::Bool
+    unused18::Bool
+    # Alphanumerics
+    kstnm::ASCIIString
+    kevnm::ASCIIString
+    khole::ASCIIString
+    ko::ASCIIString
+    ka::ASCIIString
+    kt0::ASCIIString
+    kt1::ASCIIString
+    kt2::ASCIIString
+    kt3::ASCIIString
+    kt4::ASCIIString
+    kt5::ASCIIString
+    kt6::ASCIIString
+    kt7::ASCIIString
+    kt8::ASCIIString
+    kt9::ASCIIString
+    kf::ASCIIString
+    kuser0::ASCIIString
+    kuser1::ASCIIString
+    kuser2::ASCIIString
+    kcmpnm::ASCIIString
+    knetwk::ASCIIString
+    kdatrd::ASCIIString
+    kinst::ASCIIString
 
     function SACDataHeader(npts::Int32, beginning::Float32, ending::Float32,
                            ftype::SACHeaderEnum, even::Bool, delta::Float32;
                            version::Int32=Int32(6))
         hdr = SACDataHeader()
-        hdr.NPTS = npts
-        hdr.B = beginning
-        hdr.E = ending
-        hdr.IFTYPE = ftype
-        hdr.LEVEN = even
-        hdr.DELTA = delta
-        hdr.NVHDR = version
+        hdr.npts = npts
+        hdr.b = beginning
+        hdr.e = ending
+        hdr.iftype = ftype
+        hdr.leven = even
+        hdr.delta = delta
+        hdr.nvhdr = version
 
         return hdr
     end
@@ -155,16 +286,8 @@ Set all the fields of `hdr::SACDataHeader` to their undefined values as
 specified in the SAC manual.
 """
 function set_undefinedvars!(hdr::SACDataHeader)
-    map(fieldnames(hdr)) do field
-        # Accessing undefined ASCIIString fields produces an exception so here
-        # we check for a string by looking at the first character of the
-        # symbol. According to the SAC docs, if the first character is 'K' then
-        # its an alphanumeric variable.
-        if string(field)[1] == 'K'
-            hdr.(field) = sacheader_undefinedvars[ASCIIString]
-        else
-            hdr.(field) = sacheader_undefinedvars[typeof(hdr.(field))]
-        end
+    for (field, T) in zip(fieldnames(SACDataHeader), SACDataHeader.types)
+        hdr.(field) = sacheader_undefinedvars[T]
     end
     return hdr
 end
@@ -198,7 +321,7 @@ function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
     hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
     for idx in eachindex(hdr_floats)
         val = sacheader_variables[idx]
-        if val == :INTERNAL || val == :UNUSED
+        if val == :internal || val == :unused
             continue
         end
         hdr.(val) = hdr_floats[idx]
@@ -213,7 +336,7 @@ function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
     hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
     for idx in eachindex(hdr_integers)
         val = sacheader_variables[idx + 70]
-        if val == :INTERNAL || val == :UNUSED
+        if val == :internal || val == :unused
             continue
         end
         hdr.(val) = hdr_integers[idx]
@@ -230,7 +353,7 @@ function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
     hdr_enumerations = reinterpret(SACHeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
     for idx in eachindex(hdr_enumerations)
         val = sacheader_variables[idx + 85]
-        if val == :INTERNAL || val == :UNUSED
+        if val == :internal || val == :unused
             continue
         end
         hdr.(val) = hdr_enumerations[idx]
@@ -246,7 +369,7 @@ function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
     hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]))
     for idx in eachindex(hdr_logicals)
         val = sacheader_variables[idx + 105]
-        if val == :INTERNAL || val == :UNUSED
+        if val == :internal || val == :unused
             continue
         end
         hdr.(val) = hdr_logicals[idx]
@@ -262,8 +385,8 @@ function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
     # one's four words (16 characters) long.
 
     alpha_bs = bs[sac_wordsize * 110 + 1 : sac_wordsize * (157+1)]
-    hdr.KSTNM = ascii(alpha_bs[1:sac_wordsize * 2]) # First two words of alphanumeric header
-    hdr.KEVNM = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
+    hdr.kstnm = ascii(alpha_bs[1:sac_wordsize * 2]) # first two words of alphanumeric header
+    hdr.kevnm = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
 
     rel_word = 6 # Up to word six
     while rel_word <= 46 # Remaining words to read
