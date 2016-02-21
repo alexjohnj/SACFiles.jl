@@ -298,8 +298,9 @@ appropriate fields in `hdr`. Returns an `Array{Bool,1}` of decoded bools.`"
 function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
     # we convert them to Int32s first and then to Bools.
-    hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]))
 
+    # We AND with 1 here to convert undefined bools (12345) to false
+    hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]) & 1)
     for (idx, field) in enumerate(fieldnames(SACDataHeader)[106:110])
         hdr.(field) = hdr_logicals[idx]
     end
