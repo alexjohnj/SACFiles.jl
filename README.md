@@ -1,5 +1,7 @@
 # SACFiles.jl
 
+[![Build Status](https://travis-ci.org/alexjohnj/SACFiles.jl.svg?branch=master)](https://travis-ci.org/alexjohnj/SACFiles.jl)
+
 A Julia package for working with SAC ([Seismic Analysis Code][sac-site]) files. At the
 moment it's focused on binary files. **Very much a work in progress**. Here's
 what is/isn't/will be implemented:
