@@ -26,24 +26,6 @@ const sac_wordsize = 4
 const sachdr_nwords = 158
 
 """
-Construct fields of the same type for a composite type from a splat of
-symbols. `T` is the type and `fields...` is a splat of symbols to use for the
-fields. This macro explicitly checks if any of the symbols are `:UNUSED:` or
-`:INTERNAL` and avoids generating fields for these.
-"""
-macro makefields(T, fields...)
-    exp = :(begin end)
-    # Expand the fields arg from a tuple of expressions into a tuple of symbols.
-    p = eval(Expr(:call, :tuple, fields...))
-    for field in p
-        if field != :UNUSED && field != :INTERNAL
-            push!(exp.args, :($(field)::$(T)))
-        end
-    end
-    return exp
-end
-
-"""
 Description
 ===========
 
