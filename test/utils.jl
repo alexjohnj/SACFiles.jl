@@ -47,8 +47,8 @@ end
 "Test the equality of each field between two `SACDataHeader` instances using
 `@test` and `@test_approx_eq` for floating fields."
 function testhdrequal(hdra::SACDataHeader, hdrb::SACDataHeader)
-    for field in fieldnames(hdra)
-        if typeof(hdra.(field)) == Float32
+    map(fieldnames(SACDataHeader), SACDataHeader.types) do field, T
+        if T == Float32
             @test_approx_eq hdra.(field) hdrb.(field)
         else
             @test hdra.(field) == hdrb.(field)

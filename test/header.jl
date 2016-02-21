@@ -26,17 +26,13 @@ open("./test-files/test-hexed-header.sac", "r") do f
                                       Bool          => true)
     testhdr = SACDataHeader()
 
-    for val in SACFiles.sacheader_variables
-        if val == :unused || val == :internal
-            continue
-        end
-
-        if val == :kenvm
-            testhdr.(val) = ascii("BLEEPBLOOPBLEEPS")
+    map(fieldnames(SACDataHeader), SACDataHeader.types) do field, T
+        if field == :kevnm
+            testhdr.(field) = ascii("BLEEPBLOOPBLEEPS")
         else
-            testhdr.(val) = hdr_hexedvalues[typeof(testhdr.(val))]
+            testhdr.(field) = hdr_hexedvalues[T]
         end
-        @test inhdr.(val) == testhdr.(val)
+        @test inhdr.(field) == testhdr.(field)
     end
 end
 
