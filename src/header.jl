@@ -1,46 +1,3 @@
-# Header variables in the order they appear in the data files. Excluding
-# alphanumeric variables (that start with a K), each variable is 1 word (4 B)
-# long. Alphanumeric variables are 2 words (8 B) long except for "KENVM" which
-# is 4 words (16 B) long. The total length of the header is 158 words (632 B)
-# with 133 defined and undefined variables. For a description of these fields
-# see: http://ds.iris.edu/files/sac-manual/manual/file_format.html
-const sacheader_variables = [
-# Float32 variables
-:delta, :depmin, :depmax, :scale, :odelta,
-:b, :e, :o, :a, :internal,
-:t0, :t1, :t2, :t3, :t4,
-:t5, :t6, :t7, :t8, :t9,
-:f, :resp0, :resp1, :resp2, :resp3,
-:resp4, :resp5, :resp6, :resp7, :resp8,
-:resp9,	:stla,	:stlo,	:stel,	:stdp,
-:evla,	:evlo,	:evel,	:evdp,	:mag,
-:user0,	:user1,	:user2,	:user3,	:user4,
-:user5,	:user6,	:user7,	:user8,	:user9,
-:dist, :az, :baz, :gcarc, :internal,
-:internal, :depmen,	:cmpaz,	:cmpinc,	:xminimum,
-:xmaximum,	:yminimum,	:ymaximum,	:unused,	:unused,
-:unused,	:unused,	:unused,	:unused,	:unused,
-# end of floats. start (word 70) of integers and enumerations
-:nzyear,	:nzjday,	:nzhour,	:nzmin,	:nzsec,
-:nzmsec, :nvhdr,  :norid,	:nevid,	:npts,
-:internal, :nwfid,	:nxsize,	:nysize,	:unused,
-:iftype,  :idep,	:iztype,	:unused,	:iinst,
-:istreg,  :ievreg,	:ievtyp,	:iqual,	:isynth,
-:imagtyp,	:imagsrc,	:unused,	:unused,	:unused,
-:unused,	:unused,	:unused,	:unused,	:unused,
-# end of integers and enumerations. start (word 105) of logical variables.
-:leven,	:lpspol,	:lovrok,	:lcalda,	:unused,
-# end of logical variables. start of alphanumeric variables. all are 2 words long
-# except kevnm which is four words long.
-:kstnm,	:kevnm,
-:khole,	:ko, :ka,
-:kt0,	:kt1,	:kt2,
-:kt3,	:kt4,	:kt5,
-:kt6,	:kt7,	:kt8,
-:kt9,	:kf,	:kuser0,
-:kuser1,	:kuser2,	:kcmpnm,
-:knetwk,	:kdatrd,	:kinst]
-
 """
 Enumerations for, well, SAC header enumerations. Names are the same as those
 defined in the SAC manual. See
@@ -319,13 +276,11 @@ floats."
 function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Floats take up words 0 through 69 of the header
     hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
-    for idx in eachindex(hdr_floats)
-        val = sacheader_variables[idx]
-        if val == :internal || val == :unused
-            continue
-        end
-        hdr.(val) = hdr_floats[idx]
+
+    for (idx, field) in enumerate(fieldnames(SACDataHeader)[1:70])
+        hdr.(field) = hdr_floats[idx]
     end
+
     return hdr_floats
 end
 
@@ -334,12 +289,9 @@ appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
 function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Integers take up words 70 through 84 of the header
     hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
-    for idx in eachindex(hdr_integers)
-        val = sacheader_variables[idx + 70]
-        if val == :internal || val == :unused
-            continue
-        end
-        hdr.(val) = hdr_integers[idx]
+
+    for (idx, field) in enumerate(fieldnames(SACDataHeader)[71:85])
+        hdr.(field) = hdr_integers[idx]
     end
 
     return hdr_integers
@@ -351,13 +303,11 @@ enumerations."
 function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Enumerations take up words 85 through 104 of the header
     hdr_enumerations = reinterpret(SACHeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
-    for idx in eachindex(hdr_enumerations)
-        val = sacheader_variables[idx + 85]
-        if val == :internal || val == :unused
-            continue
-        end
-        hdr.(val) = hdr_enumerations[idx]
+
+    for (idx, field) in enumerate(fieldnames(SACDataHeader)[86:105])
+        hdr.(field) = hdr_enumerations[idx]
     end
+
     return hdr_enumerations
 end
 
@@ -367,33 +317,31 @@ function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
     # we convert them to Int32s first and then to Bools.
     hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]))
-    for idx in eachindex(hdr_logicals)
-        val = sacheader_variables[idx + 105]
-        if val == :internal || val == :unused
-            continue
-        end
-        hdr.(val) = hdr_logicals[idx]
+
+    for (idx, field) in enumerate(fieldnames(SACDataHeader)[106:110])
+        hdr.(field) = hdr_logicals[idx]
     end
+
     return hdr_logicals
 end
 
 "Decode the alphanumeric type header variables from the header bytes `bs` ans
-set the appropriate fields in `hdr`. Returns `nothing`."
+set the appropriate fields in `hdr`. Returns an `Array{ASCIIString,1}` of
+decoded strings."
 function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Alphanumeric variables take up words 110 through 157 of the header. With
     # the exception of "KENVM", they're all two words (8 characters) long. That
     # one's four words (16 characters) long.
 
     alpha_bs = bs[sac_wordsize * 110 + 1 : sac_wordsize * (157+1)]
-    hdr.kstnm = ascii(alpha_bs[1:sac_wordsize * 2]) # first two words of alphanumeric header
-    hdr.kevnm = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
+    hdr_alphas = Array(ASCIIString, 23)
+    hdr_alphas[1] = ascii(alpha_bs[1:sac_wordsize * 2]) # first two words of alphanumeric header
+    hdr_alphas[2] = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
+    hdr_alphas[3:end] = [ascii(alpha_bs[sac_wordsize * n + 1:sac_wordsize * (n+2)]) for n in 6:2:46]
 
-    rel_word = 6 # Up to word six
-    while rel_word <= 46 # Remaining words to read
-        val = sacheader_variables[113 + div(rel_word-6, 2)] # Starting from the 113th variable, KHOLE
-        hdr.(val) = ascii(alpha_bs[sac_wordsize * rel_word + 1 : sac_wordsize * (rel_word + 2)])
-        rel_word += 2
+    for (idx, field) in enumerate(fieldnames(SACDataHeader)[111:133])
+        hdr.(field) = hdr_alphas[idx]
     end
 
-    return nothing
+    return hdr_alphas
 end
