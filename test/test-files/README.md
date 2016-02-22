@@ -24,6 +24,10 @@ other alphanumeric variables. The data section is simply 100 zero values.
 A synthetic seismogram generated using `funcgen seismo` in SAC. Used to test
 header reading on a non hex edited file.
 
+## `delta-etime.sac`
+
+An evenly spaced time series file with 100 points at a spike at t=50.
+
 ## `delta-utime.sac`
 
 An unevenly spaced time series file with x and y variables. The x variable is
