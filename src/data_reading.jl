@@ -57,6 +57,9 @@ end
 instance of `SACEvenTimeSeries`."
 readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
 function readsac_eventime(f::IOStream, hdr::SACDataHeader)
+    seek(f, sacdata_startb)
+    data = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    return SACEvenTimeSeries(hdr, data)
 end
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an
