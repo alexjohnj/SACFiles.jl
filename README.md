@@ -2,16 +2,17 @@
 
 [![Build Status](https://travis-ci.org/alexjohnj/SACFiles.jl.svg?branch=master)](https://travis-ci.org/alexjohnj/SACFiles.jl)
 
-A Julia package for working with SAC ([Seismic Analysis Code][sac-site]) files. At the
-moment it's focused on binary files. **Very much a work in progress**. Here's
-what is/isn't/will be implemented:
+A Julia package for working with SAC ([Seismic Analysis Code][sac-site])
+files. At the moment it's focused on binary files. **Very much a work in
+progress**. Here's what is/isn't/will be implemented:
 
 [sac-site]: http://ds.iris.edu/ds/nodes/dmc/software/downloads/sac/
 
 - [x] Reading header variables (needs testing).
-- [ ] Reading first data section from time series files.
-- [ ] Reading second data section from spectral files (amplitude/phase and real/imaginary).
-- [ ] Reading second data section from uneven time series files.
+- [x] Reading first data section from time series files.
+- [x] Reading amplitude/phase spectral files.
+- [ ] Reading real/imaginary spectral files.
+- [x] Reading second data section from uneven time series files.
 - [ ] Reading general XY files.
 - [ ] Creating and writing SAC headers.
 - [ ] Creating and writing SAC data files.
