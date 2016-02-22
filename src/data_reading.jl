@@ -66,6 +66,10 @@ end
 instance of `SACUnevenTimeSeries`."
 readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
 function readsac_uneventime(f::IOStream, hdr::SACDataHeader)
+    seek(f, sacdata_startb)
+    idata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    ddata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    return SACUnevenTimeSeries(hdr, idata, ddata)
 end
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
