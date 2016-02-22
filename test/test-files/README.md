@@ -28,3 +28,9 @@ header reading on a non hex edited file.
 
 An unevenly spaced time series file with x and y variables. The x variable is
 `log(1:100)` while the y variable is 0 except at x=50 where it is 1.
+
+## `delta-amph.sac`
+
+A spectral file containing 128 amplitude and phase data points. It's the
+spectrum of a spike at t=1 so the expected amplitude is a constant 1 and the
+phase should be zero.

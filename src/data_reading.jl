@@ -76,6 +76,10 @@ end
 `SACAmplitudeSpectrum`."
 readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
 function readsac_amph(f::IOStream, hdr::SACDataHeader)
+    seek(f, sacdata_startb)
+    ampdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    phasedata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    return SACAmplitudeSpectrum(hdr, ampdata, phasedata)
 end
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of

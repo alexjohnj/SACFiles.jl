@@ -17,4 +17,15 @@ expected_idata = log(collect(Float32(1):Float32(100)))
 @test_approx_eq open(readsac, "./test-files/delta-utime.sac").ddata expected_ddata
 @test_approx_eq open(readsac, "./test-files/delta-utime.sac").idata expected_idata
 
+# readsac_amph
+# Test reading a spectral file with amplitude/phase data
+expected_ampdata = ones(Float32, 128)
+expected_phasedata = zeros(Float32, 128)
+@test_approx_eq open(readsac_amph, "./test-files/delta-amph.sac").ampdata expected_ampdata
+@test_approx_eq open(readsac_amph, "./test-files/delta-amph.sac").phasedata expected_phasedata
+@test_approx_eq readsac("./test-files/delta-amph.sac").ampdata expected_ampdata
+@test_approx_eq readsac("./test-files/delta-amph.sac").phasedata expected_phasedata
+@test_approx_eq open(readsac, "./test-files/delta-amph.sac").ampdata expected_ampdata
+@test_approx_eq open(readsac, "./test-files/delta-amph.sac").phasedata expected_phasedata
+
 end
