@@ -28,4 +28,11 @@ expected_phasedata = zeros(Float32, 128)
 @test_approx_eq open(readsac, "./test-files/delta-amph.sac").ampdata expected_ampdata
 @test_approx_eq open(readsac, "./test-files/delta-amph.sac").phasedata expected_phasedata
 
+# readsac_lrim
+# Test reading a spectral file with real/imaginary data
+expected_rlimdata = fill(1+0im, 128)
+@test_approx_eq open(readsac_rlim, "./test-files/delta-rlim.sac").data expected_rlimdata
+@test_approx_eq readsac("./test-files/delta-rlim.sac").data expected_rlimdata
+@test_approx_eq open(readsac, "./test-files/delta-rlim.sac").data expected_rlimdata
+
 end

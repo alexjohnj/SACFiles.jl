@@ -86,6 +86,10 @@ end
 `SACComplexSpectrum`."
 readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
 function readsac_rlim(f::IOStream, hdr::SACDataHeader)
+    seek(f, sacdata_startb)
+    rldata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    imdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    return SACComplexSpectrum(hdr, complex(rldata, imdata))
 end
 
 "Read a general XY sac file from the stream `f`. Returns an instance of
