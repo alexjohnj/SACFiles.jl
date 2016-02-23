@@ -11,9 +11,9 @@ progress**. Here's what is/isn't/will be implemented:
 - [x] Reading header variables (needs testing).
 - [x] Reading first data section from time series files.
 - [x] Reading amplitude/phase spectral files.
-- [ ] Reading real/imaginary spectral files.
+- [x] Reading real/imaginary spectral files.
 - [x] Reading second data section from uneven time series files.
-- [ ] Reading general XY files.
+- [x] Reading general XY files.
 - [ ] Creating and writing SAC headers.
 - [ ] Creating and writing SAC data files.
 
