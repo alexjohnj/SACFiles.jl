@@ -56,42 +56,27 @@ end
 "Read an evenly spaced time series SAC file from the stream `f`. Returns an
 instance of `SACEvenTimeSeries`."
 readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
-function readsac_eventime(f::IOStream, hdr::SACDataHeader)
-    (data, _) = readsac_data(f, hdr.npts)
-    return SACEvenTimeSeries(hdr, data)
-end
+readsac_eventime(f::IOStream, hdr::SACDataHeader) = SACEvenTimeSeries(hdr, readsac_data(f, hdr.npts)[1])
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an
 instance of `SACUnevenTimeSeries`."
 readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
-function readsac_uneventime(f::IOStream, hdr::SACDataHeader)
-    (idata, ddata) = readsac_data(f, hdr.npts)
-    return SACUnevenTimeSeries(hdr, idata, ddata)
-end
+readsac_uneventime(f::IOStream, hdr::SACDataHeader) = SACUnevenTimeSeries(hdr, readsac_data(f, hdr.npts)...)
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
 `SACAmplitudeSpectrum`."
 readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
-function readsac_amph(f::IOStream, hdr::SACDataHeader)
-    (ampdata, phasedata) = readsac_data(f, hdr.npts)
-    return SACAmplitudeSpectrum(hdr, ampdata, phasedata)
-end
+readsac_amph(f::IOStream, hdr::SACDataHeader) = SACAmplitudeSpectrum(hdr, readsac_data(f, hdr.npts)...)
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of
 `SACComplexSpectrum`."
 readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
-function readsac_rlim(f::IOStream, hdr::SACDataHeader)
-    (rldata, imdata) = readsac_data(f, hdr.npts)
-    return SACComplexSpectrum(hdr, complex(rldata, imdata))
-end
+readsac_rlim(f::IOStream, hdr::SACDataHeader) = SACComplexSpectrum(hdr, complex(readsac_data(f, hdr.npts)...))
 
 "Read a general XY sac file from the stream `f`. Returns an instance of
 `SACGenrealXY`."
 readsac_xy(f::IOStream) = readsac_xy(f, readsachdr(f))
-function readsac_xy(f::IOStream, hdr::SACDataHeader)
-    (ydata, xdata) = readsac_data(f, hdr.npts)
-    return SACGeneralXY(hdr, xdata, ydata)
-end
+readsac_xy(f::IOStream, hdr::SACDataHeader) = SACGeneralXY(hdr, reverse(readsac_data(f, hdr.npts))...)
 
 "Reads the data section from a file and returns a tuple containing the first and
 second data (might be empty) sections. Return type `Tuple{Array{Float32,1},
