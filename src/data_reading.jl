@@ -40,9 +40,9 @@ readsac(fname::AbstractString) = open(readsac, fname)
 function readsac(f::IOStream)
     hdr = readsachdr(f)
 
-    if hdr.iftype == itime && hdr.leven == true
+    if hdr.iftype == itime && hdr.leven
         readsac_eventime(f, hdr)
-    elseif hdr.iftype == itime && hdr.leven == false
+    elseif hdr.iftype == itime && !hdr.leven
         readsac_uneventime(f, hdr)
     elseif hdr.iftype == irlim
         readsac_rlim(f, hdr)
@@ -57,8 +57,7 @@ end
 instance of `SACEvenTimeSeries`."
 readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
 function readsac_eventime(f::IOStream, hdr::SACDataHeader)
-    seek(f, sacdata_startb)
-    data = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    (data, _) = readsac_data(f, hdr.npts)
     return SACEvenTimeSeries(hdr, data)
 end
 
@@ -66,9 +65,7 @@ end
 instance of `SACUnevenTimeSeries`."
 readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
 function readsac_uneventime(f::IOStream, hdr::SACDataHeader)
-    seek(f, sacdata_startb)
-    idata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
-    ddata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    (idata, ddata) = readsac_data(f, hdr.npts)
     return SACUnevenTimeSeries(hdr, idata, ddata)
 end
 
@@ -76,9 +73,7 @@ end
 `SACAmplitudeSpectrum`."
 readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
 function readsac_amph(f::IOStream, hdr::SACDataHeader)
-    seek(f, sacdata_startb)
-    ampdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
-    phasedata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    (ampdata, phasedata) = readsac_data(f, hdr.npts)
     return SACAmplitudeSpectrum(hdr, ampdata, phasedata)
 end
 
@@ -86,9 +81,7 @@ end
 `SACComplexSpectrum`."
 readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
 function readsac_rlim(f::IOStream, hdr::SACDataHeader)
-    seek(f, sacdata_startb)
-    rldata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
-    imdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    (rldata, imdata) = readsac_data(f, hdr.npts)
     return SACComplexSpectrum(hdr, complex(rldata, imdata))
 end
 
@@ -96,8 +89,20 @@ end
 `SACGenrealXY`."
 readsac_xy(f::IOStream) = readsac_xy(f, readsachdr(f))
 function readsac_xy(f::IOStream, hdr::SACDataHeader)
-    seek(f, sacdata_startb)
-    ydata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
-    xdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    (ydata, xdata) = readsac_data(f, hdr.npts)
     return SACGeneralXY(hdr, xdata, ydata)
+end
+
+"Reads the data section from a file and returns a tuple containing the first and
+second data (might be empty) sections. Return type `Tuple{Array{Float32,1},
+Array{Float32,1}}."
+function readsac_data(f::IOStream, npts::Int32)
+    seek(f, sacdata_startb)
+    data1 = reinterpret(Float32, readbytes(f, sac_wordsize * npts))
+    if eof(f)
+        return (data1, Float32[])
+    end
+    data2 = reinterpret(Float32, readbytes(f, sac_wordsize * npts))
+
+    return (data1, data2)
 end
