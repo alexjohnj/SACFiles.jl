@@ -96,4 +96,8 @@ end
 `SACGenrealXY`."
 readsac_xy(f::IOStream) = readsac_xy(f, readsachdr(f))
 function readsac_xy(f::IOStream, hdr::SACDataHeader)
+    seek(f, sacdata_startb)
+    ydata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    xdata = reinterpret(Float32, readbytes(f, sac_wordsize * hdr.npts))
+    return SACGeneralXY(hdr, xdata, ydata)
 end

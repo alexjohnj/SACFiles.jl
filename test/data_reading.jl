@@ -35,4 +35,15 @@ expected_rlimdata = fill(1+0im, 128)
 @test_approx_eq readsac("./test-files/delta-rlim.sac").data expected_rlimdata
 @test_approx_eq open(readsac, "./test-files/delta-rlim.sac").data expected_rlimdata
 
+# readsac_xy
+# Test reading a general x vs. y file
+expected_xdata = log(collect(Float32(1):Float32(100)))
+expected_ydata = zeros(Float32, 100); expected_ydata[50] = 1.0
+@test_approx_eq open(readsac_xy, "./test-files/delta-xy.sac").x expected_xdata
+@test_approx_eq open(readsac_xy, "./test-files/delta-xy.sac").y expected_ydata
+@test_approx_eq readsac("./test-files/delta-xy.sac").x expected_xdata
+@test_approx_eq readsac("./test-files/delta-xy.sac").y expected_ydata
+@test_approx_eq open(readsac, "./test-files/delta-xy.sac").x expected_xdata
+@test_approx_eq open(readsac, "./test-files/delta-xy.sac").y expected_ydata
+
 end
