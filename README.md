@@ -52,7 +52,7 @@ the SAC file. See the section on types for the possibilities.
 
 The `readsac` function isn't type-stable. `SACFiles.jl` provides the type-stable
 functions `readsac_eventime`, `readsac_uneventime`, `readsac_amph`,
-`readsac_irlim` and `readsac_xy` if you need type stability. Use these for
+`readsac_rlim` and `readsac_xy` if you need type stability. Use these for
 performance sensitive code.
 
 The function `readsachdr` reads just the header from a SAC file, returning an
