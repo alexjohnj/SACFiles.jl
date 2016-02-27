@@ -12,6 +12,12 @@ Fields
 
 - `hdr::SACDatHeader` - The file's header.
 - `data::Vector{Float32}` - The dependent variable.
+
+See Also
+========
+
+- `readsac`
+- `readsac_eventime`
 """
 type SACEvenTimeSeries <: AbstractSACTimeSeries
     hdr::SACDataHeader
@@ -27,6 +33,12 @@ Fields
 - `hdr::SACDataHeader` - The file's header.
 - `ddata::Vector{Float32}` - The dependent variable.
 - `idata::Vector{Float32}` - The independent variable.
+
+See Also
+========
+
+- `readsac`
+- `readsac_uneventime`
 """
 type SACUnevenTimeSeries <: AbstractSACTimeSeries
     hdr::SACDataHeader
@@ -42,6 +54,12 @@ Fields
 
 - `hdr::SACDataHeader` - The file's header.
 - `data::Vector{Complex{Float32}}` - The spectral data.
+
+See Also
+========
+
+- `readsac`
+- `readsac_rlim`
 """
 type SACComplexSpectrum <: AbstractSACSpectrum
     hdr::SACDataHeader
@@ -57,6 +75,12 @@ Fields
 - `hdr::SACDataHeader` - The file's header.
 - `ampdata::Vector{Float32}` - The amplitude data.
 - `phasedata::Vector{Float32}` - The phase data.
+
+See Also
+========
+
+- `readsac`
+- `readsac_amph`
 """
 type SACAmplitudeSpectrum <: AbstractSACSpectrum
     hdr::SACDataHeader
@@ -73,6 +97,12 @@ Fields
 - `hdr::SACDataHeader` - The file's header.
 - `x::Vector{Float32}` - The x variable's data.
 - `y::Vector{Float32}` - The y variable's data.
+
+See Also
+========
+
+- `readsac`
+- `readsac_xy`
 """
 type SACGeneralXY <: AbstractSACData
     hdr::SACDataHeader
