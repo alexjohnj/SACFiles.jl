@@ -134,27 +134,52 @@ end
 "Read an evenly spaced time series SAC file from the stream `f`. Returns an
 instance of `SACEvenTimeSeries`."
 readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
-readsac_eventime(f::IOStream, hdr::SACDataHeader) = SACEvenTimeSeries(hdr, readsac_data(f, hdr.npts)[1])
+function readsac_eventime(f::IOStream, hdr::SACDataHeader)
+    if hdr.iftype != itime || !hdr.leven
+        error("File's header indicates it is not an even time series.")
+    end
+    SACEvenTimeSeries(hdr, readsac_data(f, hdr.npts)[1])
+end
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an
 instance of `SACUnevenTimeSeries`."
 readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
-readsac_uneventime(f::IOStream, hdr::SACDataHeader) = SACUnevenTimeSeries(hdr, readsac_data(f, hdr.npts)...)
+function readsac_uneventime(f::IOStream, hdr::SACDataHeader)
+    if hdr.iftype != itime || hdr.leven
+        error("File's header indicates it is not an uneven time series.")
+    end
+    SACUnevenTimeSeries(hdr, readsac_data(f, hdr.npts)...)
+end
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
 `SACAmplitudeSpectrum`."
 readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
-readsac_amph(f::IOStream, hdr::SACDataHeader) = SACAmplitudeSpectrum(hdr, readsac_data(f, hdr.npts)...)
+function readsac_amph(f::IOStream, hdr::SACDataHeader)
+    if hdr.iftype != iamph
+        error("File's header indicates it is not an amplitude/phase spectrum.")
+    end
+    SACAmplitudeSpectrum(hdr, readsac_data(f, hdr.npts)...)
+end
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of
 `SACComplexSpectrum`."
 readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
-readsac_rlim(f::IOStream, hdr::SACDataHeader) = SACComplexSpectrum(hdr, complex(readsac_data(f, hdr.npts)...))
+function readsac_rlim(f::IOStream, hdr::SACDataHeader)
+    if hdr.iftype != irlim
+        error("File's header indicates it is not a real/imaginary spectrum.")
+    end
+    SACComplexSpectrum(hdr, complex(readsac_data(f, hdr.npts)...))
+end
 
 "Read a general XY sac file from the stream `f`. Returns an instance of
 `SACGenrealXY`."
 readsac_xy(f::IOStream) = readsac_xy(f, readsachdr(f))
-readsac_xy(f::IOStream, hdr::SACDataHeader) = SACGeneralXY(hdr, reverse(readsac_data(f, hdr.npts))...)
+function readsac_xy(f::IOStream, hdr::SACDataHeader)
+    if hdr.iftype != ixy
+        error("File's header indicates it is not a general x vs. y file.")
+    end
+    SACGeneralXY(hdr, reverse(readsac_data(f, hdr.npts))...)
+end
 
 "Reads the data section from a file and returns a tuple containing the first and
 second data (might be empty) sections. Return type `Tuple{Array{Float32,1},

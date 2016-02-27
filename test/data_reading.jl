@@ -46,4 +46,30 @@ expected_ydata = zeros(Float32, 100); expected_ydata[50] = 1.0
 @test_approx_eq open(readsac, "./test-files/delta-xy.sac").x expected_xdata
 @test_approx_eq open(readsac, "./test-files/delta-xy.sac").y expected_ydata
 
+# Make sure the type-stable functions don't try and read data they shouldn't.
+@test_throws ErrorException open(readsac_eventime, "./test-files/delta-utime.sac")
+@test_throws ErrorException open(readsac_eventime, "./test-files/delta-amph.sac")
+@test_throws ErrorException open(readsac_eventime, "./test-files/delta-rlim.sac")
+@test_throws ErrorException open(readsac_eventime, "./test-files/delta-xy.sac")
+
+@test_throws ErrorException open(readsac_uneventime, "./test-files/delta-etime.sac")
+@test_throws ErrorException open(readsac_uneventime, "./test-files/delta-amph.sac")
+@test_throws ErrorException open(readsac_uneventime, "./test-files/delta-rlim.sac")
+@test_throws ErrorException open(readsac_uneventime, "./test-files/delta-xy.sac")
+
+@test_throws ErrorException open(readsac_rlim, "./test-files/delta-etime.sac")
+@test_throws ErrorException open(readsac_rlim, "./test-files/delta-utime.sac")
+@test_throws ErrorException open(readsac_rlim, "./test-files/delta-amph.sac")
+@test_throws ErrorException open(readsac_rlim, "./test-files/delta-xy.sac")
+
+@test_throws ErrorException open(readsac_amph, "./test-files/delta-etime.sac")
+@test_throws ErrorException open(readsac_amph, "./test-files/delta-utime.sac")
+@test_throws ErrorException open(readsac_amph, "./test-files/delta-rlim.sac")
+@test_throws ErrorException open(readsac_amph, "./test-files/delta-xy.sac")
+
+@test_throws ErrorException open(readsac_xy, "./test-files/delta-etime.sac")
+@test_throws ErrorException open(readsac_xy, "./test-files/delta-utime.sac")
+@test_throws ErrorException open(readsac_xy, "./test-files/delta-rlim.sac")
+@test_throws ErrorException open(readsac_xy, "./test-files/delta-amph.sac")
+
 end
