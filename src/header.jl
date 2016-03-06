@@ -406,6 +406,14 @@ type Header
         return hdr
     end
 
+    function Header(npts::Integer, b::AbstractFloat, e::AbstractFloat, ftype::HeaderEnum, even::Bool)
+        # This exists because the SAC documentation says that the `delta` header
+        # variable is required even though it doesn't make sense for a lot of
+        # data types. With this, we can just initialise it to an undefined
+        # variable, which is what SAC seems to do.
+        Header(npts, b, e, ftype, even, HEADER_UNDEFINED_VAL[Float32])
+    end
+
     Header() = (hdr = new(); set_undefinedvars!(hdr))
 end
 
