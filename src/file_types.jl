@@ -38,7 +38,7 @@ See Also
 - `readsac`
 - `readsac_uneventime`
 """
-type SACUnevenTimeSeries <: AbstractTimeSeries
+type UnevenTimeSeries <: AbstractTimeSeries
     hdr::Header
     ddata::Vector{Float32} # Dependent variable
     idata::Vector{Float32} # Independent variable

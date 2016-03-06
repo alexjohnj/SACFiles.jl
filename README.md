@@ -75,7 +75,7 @@ contain the data in the SAC file. The types are as follows:
 
 - `EvenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An evenly
   sampled time series. Data is stored in the `data` field.
-- `SACUnevenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An unevenly
+- `UnevenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An unevenly
   sampled time series. The independent variable is stored in the `idata` field
   and the dependant variable is stored in the `ddata` field.
 - `SACComplexSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral data

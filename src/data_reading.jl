@@ -32,13 +32,13 @@ function readsac_eventime(f::IOStream, hdr::Header)
 end
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an
-instance of `SACUnevenTimeSeries`."
+instance of `UnevenTimeSeries`."
 readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
 function readsac_uneventime(f::IOStream, hdr::Header)
     if hdr.iftype != itime || hdr.leven
         error("File's header indicates it is not an uneven time series.")
     end
-    SACUnevenTimeSeries(hdr, readsac_data(f, hdr.npts)...)
+    UnevenTimeSeries(hdr, readsac_data(f, hdr.npts)...)
 end
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
