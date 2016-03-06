@@ -102,7 +102,7 @@ See Also
 - `readsac`
 - `readsac_xy`
 """
-type SACGeneralXY <: AbstractSACData
+type GeneralXY <: AbstractSACData
     hdr::Header
     x::Vector{Float32}
     y::Vector{Float32}

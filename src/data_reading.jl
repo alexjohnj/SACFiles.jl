@@ -68,7 +68,7 @@ function readsac_xy(f::IOStream, hdr::Header)
     if hdr.iftype != ixy
         error("File's header indicates it is not a general x vs. y file.")
     end
-    SACGeneralXY(hdr, reverse(readsac_data(f, hdr.npts))...)
+    GeneralXY(hdr, reverse(readsac_data(f, hdr.npts))...)
 end
 
 "Reads the data section from a file and returns a tuple containing the first and

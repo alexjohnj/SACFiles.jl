@@ -84,7 +84,7 @@ contain the data in the SAC file. The types are as follows:
 - `AmplitudeSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral
   data stored in amplitude and phase form. The amplitude data is stored in the
   `ampdata` field and the phase data is stored in the `phasedata` field.
-- `SACGeneralXY <: AbstractSACData`: General X vs. Y data. The x variable's data
+- `GeneralXY <: AbstractSACData`: General X vs. Y data. The x variable's data
   is stored in the `x` field and the y variable's is stored in the `y` field.
 
 The SAC binary format stores data as 32-bit floats and integers so the
