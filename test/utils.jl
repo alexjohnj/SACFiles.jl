@@ -2,10 +2,10 @@ module Utils
 using Base.Test
 using SACFiles
 
-"Creates an instance of `SACDataHeader` with the fields manually initialised to
+"Creates an instance of `Header` with the fields manually initialised to
 the header variables of './test-files/test-seismo.sac'."
 function make_test_seismo_hdr()
-    hdr = SACDataHeader(Int32(1000), Float32(9.459999), Float32(1.945E1), SACFiles.itime, true, Float32(1E-2))
+    hdr = Header(Int32(1000), Float32(9.459999), Float32(1.945E1), SACFiles.itime, true, Float32(1E-2))
     hdr.idep = SACFiles.ivolts
     hdr.depmin = -1.569280
     hdr.depmax = 1.520640
@@ -44,10 +44,10 @@ function make_test_seismo_hdr()
     return hdr
 end
 
-"Test the equality of each field between two `SACDataHeader` instances using
+"Test the equality of each field between two `Header` instances using
 `@test` and `@test_approx_eq` for floating fields."
-function testhdrequal(hdra::SACDataHeader, hdrb::SACDataHeader)
-    map(fieldnames(SACDataHeader), SACDataHeader.types) do field, T
+function testhdrequal(hdra::Header, hdrb::Header)
+    map(fieldnames(Header), Header.types) do field, T
         if T == Float32
             @test_approx_eq hdra.(field) hdrb.(field)
         else

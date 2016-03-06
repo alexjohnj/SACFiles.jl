@@ -36,9 +36,9 @@ plot(x=t, y=s.data, Geom.line)
 
 Substitute Gadfly for your plotting package of choice.
 
-The `hdr::SACDataHeader` field is the file's header and its fields are the same
+The `hdr::Header` field is the file's header and its fields are the same
 as the header variable names in SAC (in lowercase). All the fields have
-docstrings so you can do something like `?SACDataHeader.b` in the REPL to
+docstrings so you can do something like `?Header.b` in the REPL to
 find out what some of the more cryptic fields are.
 
 ## Usage
@@ -56,20 +56,20 @@ functions `readsac_eventime`, `readsac_uneventime`, `readsac_amph`,
 performance sensitive code.
 
 The function `readsachdr` reads just the header from a SAC file, returning an
-instance of `SACDataHeader`.
+instance of `Header`.
 
 ### Types
 
 SAC files can store several different types of data, some of which are related,
 so `SACFiles` defines a type-hierarchy to represent this. The two root types are
-`SACDataHeader` and `AbstractSACData`. `SACDataHeader` is a concrete type that
+`Header` and `AbstractSACData`. `Header` is a concrete type that
 contains the header of a file. Its fields are the header variables with the same
 names as in SAC. Enumerations are defined in `HeaderEnum` and have the same
 names as in SAC.
 
 `AbstractSACData` is an abstract type that represents some SAC file. It has
 several subtypes that represent the different types of data SAC files can
-contain. All the subtypes have a field called `hdr::SACDataHeader` through which
+contain. All the subtypes have a field called `hdr::Header` through which
 you can access the header for a file. They also have one or two fields that
 contain the data in the SAC file. The types are as follows:
 

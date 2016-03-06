@@ -24,9 +24,9 @@ open("./test-files/test-hexed-header.sac", "r") do f
                                       HeaderEnum => SACFiles.inucl,
                                       ASCIIString   => ascii("BLEEPBLO"),
                                       Bool          => true)
-    testhdr = SACDataHeader()
+    testhdr = Header()
 
-    map(fieldnames(SACDataHeader), SACDataHeader.types) do field, T
+    map(fieldnames(Header), Header.types) do field, T
         if field == :kevnm
             testhdr.(field) = ascii("BLEEPBLOOPBLEEPS")
         else

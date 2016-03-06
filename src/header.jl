@@ -29,7 +29,7 @@ const sachdr_nwords = 158
 Description
 ===========
 
-`SACDataHeader` represents the header of a SAC file. Fields are initialised with
+`Header` represents the header of a SAC file. Fields are initialised with
 the default undefined values for Floats, Ints, Enumerations, Bools and Strings
 as described in the SAC manual.
 
@@ -51,11 +51,11 @@ Constructors
 
 The best way to create a new header is to use:
 
-`SACDataHeader(npts::Int32, beginning::Float32, ending::Float32, ftype::HeaderEnum, even::Bool, delta::Float32; version::Int32=Int32(6))`
+`Header(npts::Int32, beginning::Float32, ending::Float32, ftype::HeaderEnum, even::Bool, delta::Float32; version::Int32=Int32(6))`
 
 This will create a *valid* SAC header with the required fields initialised and
 other fields set to their undefined values. You can create an empty header using
-`SACDataHeader()` but required fields will be initialised to their undefined
+`Header()` but required fields will be initialised to their undefined
 values so the header will be invalid.
 
 See Also
@@ -63,7 +63,7 @@ See Also
 
 `HeaderEnum` for information on the possible enumerated values.
 """
-type SACDataHeader
+type Header
     "Increment between evenly spaced samples."
     delta::Float32
     "Minimum value of the dependent variable."
@@ -393,10 +393,10 @@ type SACDataHeader
     "Generic name of recording instrument."
     kinst::ASCIIString
 
-    function SACDataHeader(npts::Int32, beginning::Float32, ending::Float32,
+    function Header(npts::Int32, beginning::Float32, ending::Float32,
                            ftype::HeaderEnum, even::Bool, delta::Float32;
                            version::Int32=Int32(6))
-        hdr = SACDataHeader()
+        hdr = Header()
         hdr.npts = npts
         hdr.b = beginning
         hdr.e = ending
@@ -408,25 +408,25 @@ type SACDataHeader
         return hdr
     end
 
-    SACDataHeader() = (hdr = new(); set_undefinedvars!(hdr))
+    Header() = (hdr = new(); set_undefinedvars!(hdr))
 end
 
 """
-Set all the fields of `hdr::SACDataHeader` to their undefined values as
+Set all the fields of `hdr::Header` to their undefined values as
 specified in the SAC manual.
 """
-function set_undefinedvars!(hdr::SACDataHeader)
-    for (field, T) in zip(fieldnames(SACDataHeader), SACDataHeader.types)
+function set_undefinedvars!(hdr::Header)
+    for (field, T) in zip(fieldnames(Header), Header.types)
         hdr.(field) = sacheader_undefinedvars[T]
     end
     return hdr
 end
 
 "Read the header data (first 158 words) from the stream `f` returning a
-`SACDataHeader` instance constructed from it."
+`Header` instance constructed from it."
 function readsachdr(f::IOStream)
     bs = readbytes(f, sac_wordsize * sachdr_nwords)
-    hdr = SACDataHeader()
+    hdr = Header()
 
     decode_floats!(hdr, bs)
     decode_integers!(hdr, bs)
@@ -438,7 +438,7 @@ function readsachdr(f::IOStream)
 end
 
 "Read the header data (first 158 words) from the file at path `fname` returning
-a `SACDataHeader` instance constructed from it."
+a `Header` instance constructed from it."
 function readsachdr(fname::AbstractString)
     return open(readsachdr, fname, "r")
 end
@@ -446,11 +446,11 @@ end
 "Decode the floating type header variables from the header bytes `bs` and set
 the appropriate fields in `hdr`. Returns an `Array{Float32,1}` of decoded
 floats."
-function decode_floats!(hdr::SACDataHeader, bs::Vector{UInt8})
+function decode_floats!(hdr::Header, bs::Vector{UInt8})
     # Floats take up words 0 through 69 of the header
     hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
 
-    for (idx, field) in enumerate(fieldnames(SACDataHeader)[1:70])
+    for (idx, field) in enumerate(fieldnames(Header)[1:70])
         hdr.(field) = hdr_floats[idx]
     end
 
@@ -459,11 +459,11 @@ end
 
 "Decode the integer type header variables from the header bytes `bs` and set the
 appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
-function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
+function decode_integers!(hdr::Header, bs::Vector{UInt8})
     # Integers take up words 70 through 84 of the header
     hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
 
-    for (idx, field) in enumerate(fieldnames(SACDataHeader)[71:85])
+    for (idx, field) in enumerate(fieldnames(Header)[71:85])
         hdr.(field) = hdr_integers[idx]
     end
 
@@ -473,11 +473,11 @@ end
 "Decode the enumeration type header variables from the header bytes `bs` and set
 the appropriate fields in `hdr`. Returns an `Array{HeaderEnum,1}` of decoded
 enumerations."
-function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
+function decode_enumerations!(hdr::Header, bs::Vector{UInt8})
     # Enumerations take up words 85 through 104 of the header
     hdr_enumerations = reinterpret(HeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
 
-    for (idx, field) in enumerate(fieldnames(SACDataHeader)[86:105])
+    for (idx, field) in enumerate(fieldnames(Header)[86:105])
         hdr.(field) = hdr_enumerations[idx]
     end
 
@@ -486,13 +486,13 @@ end
 
 "Decode the logical type header variables from the header bytes `bs` and set the
 appropriate fields in `hdr`. Returns an `Array{Bool,1}` of decoded bools.`"
-function decode_logicals!(hdr::SACDataHeader, bs::Vector{UInt8})
+function decode_logicals!(hdr::Header, bs::Vector{UInt8})
     # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
     # we convert them to Int32s first and then to Bools.
 
     # We AND with 1 here to convert undefined bools (12345) to false
     hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]) & 1)
-    for (idx, field) in enumerate(fieldnames(SACDataHeader)[106:110])
+    for (idx, field) in enumerate(fieldnames(Header)[106:110])
         hdr.(field) = hdr_logicals[idx]
     end
 
@@ -502,7 +502,7 @@ end
 "Decode the alphanumeric type header variables from the header bytes `bs` ans
 set the appropriate fields in `hdr`. Returns an `Array{ASCIIString,1}` of
 decoded strings."
-function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
+function decode_alphanumerics!(hdr::Header, bs::Vector{UInt8})
     # Alphanumeric variables take up words 110 through 157 of the header. With
     # the exception of "KENVM", they're all two words (8 characters) long. That
     # one's four words (16 characters) long.
@@ -513,7 +513,7 @@ function decode_alphanumerics!(hdr::SACDataHeader, bs::Vector{UInt8})
     hdr_alphas[2] = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
     hdr_alphas[3:end] = [ascii(alpha_bs[sac_wordsize * n + 1:sac_wordsize * (n+2)]) for n in 6:2:46]
 
-    for (idx, field) in enumerate(fieldnames(SACDataHeader)[111:133])
+    for (idx, field) in enumerate(fieldnames(Header)[111:133])
         hdr.(field) = hdr_alphas[idx]
     end
 
