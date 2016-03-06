@@ -78,7 +78,7 @@ contain the data in the SAC file. The types are as follows:
 - `UnevenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An unevenly
   sampled time series. The independent variable is stored in the `idata` field
   and the dependant variable is stored in the `ddata` field.
-- `SACComplexSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral data
+- `ComplexSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral data
   stored in real and imaginary form. The data is accessible via the
   `data::Vector{Complex{Float32}}` field.
 - `AmplitudeSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral

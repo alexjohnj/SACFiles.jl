@@ -59,7 +59,7 @@ See Also
 - `readsac`
 - `readsac_rlim`
 """
-type SACComplexSpectrum <: AbstractSpectrum
+type ComplexSpectrum <: AbstractSpectrum
     hdr::Header
     data::Vector{Complex{Float32}}
 end

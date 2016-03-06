@@ -52,13 +52,13 @@ function readsac_amph(f::IOStream, hdr::Header)
 end
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of
-`SACComplexSpectrum`."
+`ComplexSpectrum`."
 readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
 function readsac_rlim(f::IOStream, hdr::Header)
     if hdr.iftype != irlim
         error("File's header indicates it is not a real/imaginary spectrum.")
     end
-    SACComplexSpectrum(hdr, complex(readsac_data(f, hdr.npts)...))
+    ComplexSpectrum(hdr, complex(readsac_data(f, hdr.npts)...))
 end
 
 "Read a general XY sac file from the stream `f`. Returns an instance of
