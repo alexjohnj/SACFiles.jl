@@ -73,15 +73,15 @@ contain. All the subtypes have a field called `hdr::Header` through which
 you can access the header for a file. They also have one or two fields that
 contain the data in the SAC file. The types are as follows:
 
-- `SACEvenTimeSeries <: AbstractSACTimeSeries <: AbstractSACData`: An evenly
+- `SACEvenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An evenly
   sampled time series. Data is stored in the `data` field.
-- `SACUnevenTimeSeries <: AbstractSACTimeSeries <: AbstractSACData`: An unevenly
+- `SACUnevenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An unevenly
   sampled time series. The independent variable is stored in the `idata` field
   and the dependant variable is stored in the `ddata` field.
-- `SACComplexSpectrum <: AbstractSACSpectrum <: AbstractSACData`: Spectral data
+- `SACComplexSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral data
   stored in real and imaginary form. The data is accessible via the
   `data::Vector{Complex{Float32}}` field.
-- `SACAmplitudeSpectrum <: AbstractSACSpectrum <: AbstractSACData`: Spectral
+- `SACAmplitudeSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral
   data stored in amplitude and phase form. The amplitude data is stored in the
   `ampdata` field and the phase data is stored in the `phasedata` field.
 - `SACGeneralXY <: AbstractSACData`: General X vs. Y data. The x variable's data

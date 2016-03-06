@@ -1,7 +1,7 @@
 module SACFiles
 
 export HeaderEnum, Header, readsachdr
-export AbstractSACData, AbstractSACSpectrum, AbstractSACTimeSeries
+export AbstractSACData, AbstractSpectrum, AbstractTimeSeries
 export SACEvenTimeSeries, SACUnevenTimeSeries, SACAmplitudeSpectrum, SACComplexSpectrum, SACGeneralXY
 export readsac, readsac_eventime, readsac_uneventime, readsac_rlim, readsac_amph, readsac_xy
 

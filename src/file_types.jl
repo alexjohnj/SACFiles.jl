@@ -1,6 +1,6 @@
 abstract AbstractSACData
-abstract AbstractSACTimeSeries <: AbstractSACData
-abstract AbstractSACSpectrum <: AbstractSACData
+abstract AbstractTimeSeries <: AbstractSACData
+abstract AbstractSpectrum <: AbstractSACData
 
 """
 An evenly spaced time series.
@@ -17,7 +17,7 @@ See Also
 - `readsac`
 - `readsac_eventime`
 """
-type SACEvenTimeSeries <: AbstractSACTimeSeries
+type SACEvenTimeSeries <: AbstractTimeSeries
     hdr::Header
     data::Vector{Float32}
 end
@@ -38,7 +38,7 @@ See Also
 - `readsac`
 - `readsac_uneventime`
 """
-type SACUnevenTimeSeries <: AbstractSACTimeSeries
+type SACUnevenTimeSeries <: AbstractTimeSeries
     hdr::Header
     ddata::Vector{Float32} # Dependent variable
     idata::Vector{Float32} # Independent variable
@@ -59,7 +59,7 @@ See Also
 - `readsac`
 - `readsac_rlim`
 """
-type SACComplexSpectrum <: AbstractSACSpectrum
+type SACComplexSpectrum <: AbstractSpectrum
     hdr::Header
     data::Vector{Complex{Float32}}
 end
@@ -80,7 +80,7 @@ See Also
 - `readsac`
 - `readsac_amph`
 """
-type SACAmplitudeSpectrum <: AbstractSACSpectrum
+type SACAmplitudeSpectrum <: AbstractSpectrum
     hdr::Header
     ampdata::Vector{Float32}
     phasedata::Vector{Float32}
