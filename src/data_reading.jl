@@ -42,13 +42,13 @@ function readsac_uneventime(f::IOStream, hdr::Header)
 end
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
-`SACAmplitudeSpectrum`."
+`AmplitudeSpectrum`."
 readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
 function readsac_amph(f::IOStream, hdr::Header)
     if hdr.iftype != iamph
         error("File's header indicates it is not an amplitude/phase spectrum.")
     end
-    SACAmplitudeSpectrum(hdr, readsac_data(f, hdr.npts)...)
+    AmplitudeSpectrum(hdr, readsac_data(f, hdr.npts)...)
 end
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of

@@ -80,7 +80,7 @@ See Also
 - `readsac`
 - `readsac_amph`
 """
-type SACAmplitudeSpectrum <: AbstractSpectrum
+type AmplitudeSpectrum <: AbstractSpectrum
     hdr::Header
     ampdata::Vector{Float32}
     phasedata::Vector{Float32}

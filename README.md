@@ -81,7 +81,7 @@ contain the data in the SAC file. The types are as follows:
 - `SACComplexSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral data
   stored in real and imaginary form. The data is accessible via the
   `data::Vector{Complex{Float32}}` field.
-- `SACAmplitudeSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral
+- `AmplitudeSpectrum <: AbstractSpectrum <: AbstractSACData`: Spectral
   data stored in amplitude and phase form. The amplitude data is stored in the
   `ampdata` field and the phase data is stored in the `phasedata` field.
 - `SACGeneralXY <: AbstractSACData`: General X vs. Y data. The x variable's data
