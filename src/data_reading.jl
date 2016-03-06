@@ -1,4 +1,4 @@
-const sacdata_startb = 632 # Start byte for a SAC file's data section
+const DATA_START = 632 # Start byte for a SAC file's data section
 
 "Read the SAC file stream `f`. Returns a subtype of `AbstractSACData` determined
 using the file's header's `iftype` and `leven` variables. Note that this
@@ -75,12 +75,12 @@ end
 second data (might be empty) sections. Return type `Tuple{Array{Float32,1},
 Array{Float32,1}}."
 function readsac_data(f::IOStream, npts::Int32)
-    seek(f, sacdata_startb)
-    data1 = reinterpret(Float32, readbytes(f, sac_wordsize * npts))
+    seek(f, DATA_START)
+    data1 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
     if eof(f)
         return (data1, Float32[])
     end
-    data2 = reinterpret(Float32, readbytes(f, sac_wordsize * npts))
+    data2 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
 
     return (data1, data2)
 end

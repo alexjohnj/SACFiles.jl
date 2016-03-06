@@ -15,15 +15,14 @@ each enum. For a list of values, run `instances(HeaderEnum)`.
       iqc, iqb0, igey, ilit, imet, iodor, ios=103)
 
 # Undefined values for different data types, as given in the SAC manual.
-const sacheader_undefinedvars = Dict{Type,Any}(
-                                               Float32       => Float32(-12345.0),
-                                               Int32         => Int32(-12345),
-                                               HeaderEnum => Int32(-12345),
-                                               Bool          => false,
-                                               ASCIIString   => "-12345  " :: ASCIIString)
+const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
+                                            Int32       => Int32(-12345),
+                                            HeaderEnum  => Int32(-12345),
+                                            Bool        => false,
+                                            ASCIIString => "-12345  " :: ASCIIString)
 
-const sac_wordsize = 4
-const sachdr_nwords = 158
+const SAC_WORD_SIZE = 4
+const SAC_HDR_NWORDS = 158
 
 """
 Description
@@ -417,7 +416,7 @@ specified in the SAC manual.
 """
 function set_undefinedvars!(hdr::Header)
     for (field, T) in zip(fieldnames(Header), Header.types)
-        hdr.(field) = sacheader_undefinedvars[T]
+        hdr.(field) = HEADER_UNDEFINED_VAL[T]
     end
     return hdr
 end
@@ -425,7 +424,7 @@ end
 "Read the header data (first 158 words) from the stream `f` returning a
 `Header` instance constructed from it."
 function readsachdr(f::IOStream)
-    bs = readbytes(f, sac_wordsize * sachdr_nwords)
+    bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
     decode_floats!(hdr, bs)
@@ -448,7 +447,7 @@ the appropriate fields in `hdr`. Returns an `Array{Float32,1}` of decoded
 floats."
 function decode_floats!(hdr::Header, bs::Vector{UInt8})
     # Floats take up words 0 through 69 of the header
-    hdr_floats = reinterpret(Float32, bs[1:sac_wordsize * (69+1)])
+    hdr_floats = reinterpret(Float32, bs[1:SAC_WORD_SIZE * (69+1)])
 
     for (idx, field) in enumerate(fieldnames(Header)[1:70])
         hdr.(field) = hdr_floats[idx]
@@ -461,7 +460,7 @@ end
 appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
 function decode_integers!(hdr::Header, bs::Vector{UInt8})
     # Integers take up words 70 through 84 of the header
-    hdr_integers = reinterpret(Int32, bs[sac_wordsize * 70 + 1 : sac_wordsize * (84+1)])
+    hdr_integers = reinterpret(Int32, bs[SAC_WORD_SIZE * 70 + 1 : SAC_WORD_SIZE * (84+1)])
 
     for (idx, field) in enumerate(fieldnames(Header)[71:85])
         hdr.(field) = hdr_integers[idx]
@@ -475,7 +474,7 @@ the appropriate fields in `hdr`. Returns an `Array{HeaderEnum,1}` of decoded
 enumerations."
 function decode_enumerations!(hdr::Header, bs::Vector{UInt8})
     # Enumerations take up words 85 through 104 of the header
-    hdr_enumerations = reinterpret(HeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
+    hdr_enumerations = reinterpret(HeaderEnum, bs[SAC_WORD_SIZE * 85 + 1 : SAC_WORD_SIZE * (104+1)])
 
     for (idx, field) in enumerate(fieldnames(Header)[86:105])
         hdr.(field) = hdr_enumerations[idx]
@@ -491,7 +490,7 @@ function decode_logicals!(hdr::Header, bs::Vector{UInt8})
     # we convert them to Int32s first and then to Bools.
 
     # We AND with 1 here to convert undefined bools (12345) to false
-    hdr_logicals = map(Bool, reinterpret(Int32, bs[sac_wordsize * 105 + 1 : sac_wordsize * (109+1)]) & 1)
+    hdr_logicals = map(Bool, reinterpret(Int32, bs[SAC_WORD_SIZE * 105 + 1 : SAC_WORD_SIZE * (109+1)]) & 1)
     for (idx, field) in enumerate(fieldnames(Header)[106:110])
         hdr.(field) = hdr_logicals[idx]
     end
@@ -507,11 +506,11 @@ function decode_alphanumerics!(hdr::Header, bs::Vector{UInt8})
     # the exception of "KENVM", they're all two words (8 characters) long. That
     # one's four words (16 characters) long.
 
-    alpha_bs = bs[sac_wordsize * 110 + 1 : sac_wordsize * (157+1)]
+    alpha_bs = bs[SAC_WORD_SIZE * 110 + 1 : SAC_WORD_SIZE * (157+1)]
     hdr_alphas = Array(ASCIIString, 23)
-    hdr_alphas[1] = ascii(alpha_bs[1:sac_wordsize * 2]) # first two words of alphanumeric header
-    hdr_alphas[2] = ascii(alpha_bs[sac_wordsize * 2 + 1 : sac_wordsize * (7-1)]) # Next four words of alphanumeric header
-    hdr_alphas[3:end] = [ascii(alpha_bs[sac_wordsize * n + 1:sac_wordsize * (n+2)]) for n in 6:2:46]
+    hdr_alphas[1] = ascii(alpha_bs[1:SAC_WORD_SIZE * 2]) # first two words of alphanumeric header
+    hdr_alphas[2] = ascii(alpha_bs[SAC_WORD_SIZE * 2 + 1 : SAC_WORD_SIZE * (7-1)]) # Next four words of alphanumeric header
+    hdr_alphas[3:end] = [ascii(alpha_bs[SAC_WORD_SIZE * n + 1:SAC_WORD_SIZE * (n+2)]) for n in 6:2:46]
 
     for (idx, field) in enumerate(fieldnames(Header)[111:133])
         hdr.(field) = hdr_alphas[idx]
