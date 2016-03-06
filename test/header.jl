@@ -5,9 +5,9 @@ import Utils
 
 # Test enums are defined correctly.
 ids = vcat(-12345, 1:50, 52:97, 103)
-enums = instances(SACHeaderEnum) # This feels dirty. Is instances guaranteed to return the Enums in order?
+enums = instances(HeaderEnum) # This feels dirty. Is instances guaranteed to return the Enums in order?
 map(ids, enums) do id, enum
-    @test SACHeaderEnum(id) == enum
+    @test HeaderEnum(id) == enum
 end
 
 # Make sure we're reading the whole header
@@ -21,7 +21,7 @@ open("./test-files/test-hexed-header.sac", "r") do f
     inhdr = readsachdr(f)
     hdr_hexedvalues = Dict{Type, Any}(Float32       => Float32(1337.0),
                                       Int32         => Int32(1337),
-                                      SACHeaderEnum => SACFiles.inucl,
+                                      HeaderEnum => SACFiles.inucl,
                                       ASCIIString   => ascii("BLEEPBLO"),
                                       Bool          => true)
     testhdr = SACDataHeader()

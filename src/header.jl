@@ -2,9 +2,9 @@
 Enumerations for, well, SAC header enumerations. Names are the same as those
 defined in the SAC manual. See
 <http://ds.iris.edu/files/sac-manual/manual/file_format.html> for details on
-each enum. For a list of values, run `instances(SACHeaderEnum)`.
+each enum. For a list of values, run `instances(HeaderEnum)`.
 """
-@enum(SACHeaderEnum, undefined=-12345, itime=1, irlim, iamph, ixy, iunkn, idisp, ivel, iacc, ib,
+@enum(HeaderEnum, undefined=-12345, itime=1, irlim, iamph, ixy, iunkn, idisp, ivel, iacc, ib,
       iday, io, ia, it0, it1, it2, it3, it4, it5, it6, it7, it8, it9, iradnv,
       itannv, iradev, itanev, inorth, ieast, ihorza, idown, iup, illlbb, iwwsn1,
       iwwsn2, ihglp, isro, inucl, ipren, ipostn, iquake, ipreq, ipostq, ichem,
@@ -18,7 +18,7 @@ each enum. For a list of values, run `instances(SACHeaderEnum)`.
 const sacheader_undefinedvars = Dict{Type,Any}(
                                                Float32       => Float32(-12345.0),
                                                Int32         => Int32(-12345),
-                                               SACHeaderEnum => Int32(-12345),
+                                               HeaderEnum => Int32(-12345),
                                                Bool          => false,
                                                ASCIIString   => "-12345  " :: ASCIIString)
 
@@ -42,7 +42,7 @@ each one. The different header types become the following Julia types:
 
 - Floating     => Float32
 - Integer      => Int32
-- Enumerated   => SACHeaderEnum
+- Enumerated   => HeaderEnum
 - Logical      => Bool
 - Alphanumeric => ASCIIString
 
@@ -51,7 +51,7 @@ Constructors
 
 The best way to create a new header is to use:
 
-`SACDataHeader(npts::Int32, beginning::Float32, ending::Float32, ftype::SACHeaderEnum, even::Bool, delta::Float32; version::Int32=Int32(6))`
+`SACDataHeader(npts::Int32, beginning::Float32, ending::Float32, ftype::HeaderEnum, even::Bool, delta::Float32; version::Int32=Int32(6))`
 
 This will create a *valid* SAC header with the required fields initialised and
 other fields set to their undefined values. You can create an empty header using
@@ -61,7 +61,7 @@ values so the header will be invalid.
 See Also
 ========
 
-`SACHeaderEnum` for information on the possible enumerated values.
+`HeaderEnum` for information on the possible enumerated values.
 """
 type SACDataHeader
     "Increment between evenly spaced samples."
@@ -232,7 +232,7 @@ type SACDataHeader
      - `ixy` (General x vs. y data)
      - `ixyz` (General xyz data)
     """
-    iftype::SACHeaderEnum
+    iftype::HeaderEnum
     """Type of dependent variable. Possible values include:
 
     - `iunkn` (Unknown)
@@ -241,7 +241,7 @@ type SACDataHeader
     - `ivolts` (Velocity in volts)
     - `iacc` (Acceleration in nm/sec/sec)
     """
-    idep::SACHeaderEnum
+    idep::HeaderEnum
     """Reference time type. Possible values include:
 
     - `iunkn` (Unknown)
@@ -251,14 +251,14 @@ type SACDataHeader
     - `ia` (First arrival time)
     - `itn` where n = 0:9. (User defined time pick)
     """
-    iztype::SACHeaderEnum
-    unused9::SACHeaderEnum
+    iztype::HeaderEnum
+    unused9::HeaderEnum
     "Type of recording instrument (not used by SAC)."
-    iinst::SACHeaderEnum
+    iinst::HeaderEnum
     "Station geographic region (not used by SAC)."
-    istreg::SACHeaderEnum
+    istreg::HeaderEnum
     "Event geographic region (not used by SAC)."
-    ievreg::SACHeaderEnum
+    ievreg::HeaderEnum
     """Type of event. One of:
 
     - `iunkn` (Unknown)
@@ -288,7 +288,7 @@ type SACDataHeader
     - `iu` (Undetermined or conflicting information)
     - `iother` (Other)
     """
-    ievtyp::SACHeaderEnum
+    ievtyp::HeaderEnum
     """Quality of data (not used by SAC). Can be one of:
 
     - `igood` (Good data)
@@ -297,9 +297,9 @@ type SACDataHeader
     - `ilowsn` (Low signal to noise ratio)
     - `iother` (Other)
     """
-    iqual::SACHeaderEnum
+    iqual::HeaderEnum
     "Synthetic data flag (not used by SAC). Can be `irldta` (real data)"
-    isynth::SACHeaderEnum
+    isynth::HeaderEnum
     """Magnitude type. One of:
 
     - `imb` (Body wave magnitude)
@@ -309,7 +309,7 @@ type SACDataHeader
     - `imd` (Duration magnitude)
     - `imx` (User defined magnitude)
     """
-    imagtyp::SACHeaderEnum
+    imagtyp::HeaderEnum
     """Source of magnitude information. One of:
 
     - `ineic` (National Earthquake Information Center)
@@ -325,15 +325,15 @@ type SACDataHeader
     - `iuser` (The individual using SAC2000)
     - `iunknown` (Unknown)
     """
-    imagsrc::SACHeaderEnum
-    unused10::SACHeaderEnum
-    unused11::SACHeaderEnum
-    unused12::SACHeaderEnum
-    unused13::SACHeaderEnum
-    unused14::SACHeaderEnum
-    unused15::SACHeaderEnum
-    unused16::SACHeaderEnum
-    unused17::SACHeaderEnum
+    imagsrc::HeaderEnum
+    unused10::HeaderEnum
+    unused11::HeaderEnum
+    unused12::HeaderEnum
+    unused13::HeaderEnum
+    unused14::HeaderEnum
+    unused15::HeaderEnum
+    unused16::HeaderEnum
+    unused17::HeaderEnum
     # Logical Variables
     "`true` if data is evenly spaced."
     leven::Bool
@@ -394,7 +394,7 @@ type SACDataHeader
     kinst::ASCIIString
 
     function SACDataHeader(npts::Int32, beginning::Float32, ending::Float32,
-                           ftype::SACHeaderEnum, even::Bool, delta::Float32;
+                           ftype::HeaderEnum, even::Bool, delta::Float32;
                            version::Int32=Int32(6))
         hdr = SACDataHeader()
         hdr.npts = npts
@@ -471,11 +471,11 @@ function decode_integers!(hdr::SACDataHeader, bs::Vector{UInt8})
 end
 
 "Decode the enumeration type header variables from the header bytes `bs` and set
-the appropriate fields in `hdr`. Returns an `Array{SACHeaderEnum,1}` of decoded
+the appropriate fields in `hdr`. Returns an `Array{HeaderEnum,1}` of decoded
 enumerations."
 function decode_enumerations!(hdr::SACDataHeader, bs::Vector{UInt8})
     # Enumerations take up words 85 through 104 of the header
-    hdr_enumerations = reinterpret(SACHeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
+    hdr_enumerations = reinterpret(HeaderEnum, bs[sac_wordsize * 85 + 1 : sac_wordsize * (104+1)])
 
     for (idx, field) in enumerate(fieldnames(SACDataHeader)[86:105])
         hdr.(field) = hdr_enumerations[idx]

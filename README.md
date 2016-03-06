@@ -64,7 +64,7 @@ SAC files can store several different types of data, some of which are related,
 so `SACFiles` defines a type-hierarchy to represent this. The two root types are
 `SACDataHeader` and `AbstractSACData`. `SACDataHeader` is a concrete type that
 contains the header of a file. Its fields are the header variables with the same
-names as in SAC. Enumerations are defined in `SACHeaderEnum` and have the same
+names as in SAC. Enumerations are defined in `HeaderEnum` and have the same
 names as in SAC.
 
 `AbstractSACData` is an abstract type that represents some SAC file. It has
