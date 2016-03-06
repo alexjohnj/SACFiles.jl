@@ -73,7 +73,7 @@ contain. All the subtypes have a field called `hdr::Header` through which
 you can access the header for a file. They also have one or two fields that
 contain the data in the SAC file. The types are as follows:
 
-- `SACEvenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An evenly
+- `EvenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An evenly
   sampled time series. Data is stored in the `data` field.
 - `SACUnevenTimeSeries <: AbstractTimeSeries <: AbstractSACData`: An unevenly
   sampled time series. The independent variable is stored in the `idata` field

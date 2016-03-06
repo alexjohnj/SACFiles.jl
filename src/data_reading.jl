@@ -22,13 +22,13 @@ function readsac(f::IOStream)
 end
 
 "Read an evenly spaced time series SAC file from the stream `f`. Returns an
-instance of `SACEvenTimeSeries`."
+instance of `EvenTimeSeries`."
 readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
 function readsac_eventime(f::IOStream, hdr::Header)
     if hdr.iftype != itime || !hdr.leven
         error("File's header indicates it is not an even time series.")
     end
-    SACEvenTimeSeries(hdr, readsac_data(f, hdr.npts)[1])
+    EvenTimeSeries(hdr, readsac_data(f, hdr.npts)[1])
 end
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an

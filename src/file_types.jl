@@ -17,7 +17,7 @@ See Also
 - `readsac`
 - `readsac_eventime`
 """
-type SACEvenTimeSeries <: AbstractTimeSeries
+type EvenTimeSeries <: AbstractTimeSeries
     hdr::Header
     data::Vector{Float32}
 end
