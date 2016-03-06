@@ -392,17 +392,16 @@ type Header
     "Generic name of recording instrument."
     kinst::ASCIIString
 
-    function Header(npts::Int32, beginning::Float32, ending::Float32,
-                           ftype::HeaderEnum, even::Bool, delta::Float32;
-                           version::Int32=Int32(6))
+    function Header(npts::Integer, b::AbstractFloat, e::AbstractFloat, ftype::HeaderEnum,
+                    even::Bool, delta::AbstractFloat)
         hdr = Header()
         hdr.npts = npts
-        hdr.b = beginning
-        hdr.e = ending
+        hdr.b = b
+        hdr.e = e
         hdr.iftype = ftype
         hdr.leven = even
         hdr.delta = delta
-        hdr.nvhdr = version
+        hdr.nvhdr = 6
 
         return hdr
     end
