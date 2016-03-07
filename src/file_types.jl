@@ -15,7 +15,6 @@ See Also
 ========
 
 - `readsac`
-- `readsac_eventime`
 """
 type EvenTimeSeries <: AbstractTimeSeries
     hdr::Header
@@ -36,7 +35,6 @@ See Also
 ========
 
 - `readsac`
-- `readsac_uneventime`
 """
 type UnevenTimeSeries <: AbstractTimeSeries
     hdr::Header
@@ -57,7 +55,6 @@ See Also
 ========
 
 - `readsac`
-- `readsac_rlim`
 """
 type ComplexSpectrum <: AbstractSpectrum
     hdr::Header
@@ -78,7 +75,6 @@ See Also
 ========
 
 - `readsac`
-- `readsac_amph`
 """
 type AmplitudeSpectrum <: AbstractSpectrum
     hdr::Header
@@ -100,7 +96,6 @@ See Also
 ========
 
 - `readsac`
-- `readsac_xy`
 """
 type GeneralXY <: AbstractSACData
     hdr::Header

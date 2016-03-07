@@ -22,8 +22,8 @@ from the Julia REPL.
 
 `SACFiles.jl` defines a type hierarchy for the different types of SAC files
 (even time series, uneven time series, complex spectrum etc.) as well as a bunch
-of different methods for reading files. If all you want to do is read and plot a
-seismogram though, here's what you'd do:
+of different functions for reading files. If all you want to do is read and plot
+a seismogram though, here's what you'd do:
 
 ``` julia
 using SACFiles
@@ -36,24 +36,27 @@ plot(x=t, y=s.data, Geom.line)
 
 Substitute Gadfly for your plotting package of choice.
 
-The `hdr::Header` field is the file's header and its fields are the same
-as the header variable names in SAC (in lowercase). All the fields have
-docstrings so you can do something like `?Header.b` in the REPL to
-find out what some of the more cryptic fields are.
+The `hdr::Header` field is the file's header and its fields are the same as the
+header variable names in SAC (in lowercase). All the fields have docstrings so
+you can run `?Header.b` in the REPL to find out what some of the more cryptic
+fields are.
 
 ## Usage
 
 ### Reading Files
 
-`SACFiles.jl` provides the methods `readsac(fname::AbstractString)` and
-`readsac(f::IOStream)` for reading binary SAC files. These return a subtype of
-`AbstractSACData`. The concrete type returned is determined from the header of
-the SAC file. See the section on types for the possibilities.
+The function `readsac` is used to read a SAC file into a data structure. There's
+three sets of methods for this function. The first two are
+`readsac(f::IOStream)` and `readsac(fname::AbstractString)`. These return a
+subtype of `AbstractSACData` initialised with the contents of the file. These
+functions figure out the concrete type using the header of the file but they
+aren't type-stable as a result.
 
-The `readsac` function isn't type-stable. `SACFiles.jl` provides the type-stable
-functions `readsac_eventime`, `readsac_uneventime`, `readsac_amph`,
-`readsac_rlim` and `readsac_xy` if you need type stability. Use these for
-performance sensitive code.
+For type-stability, there are the `readsac(T::Type{<:AbstractSACData},
+f::IOStream)` methods. These accept a concrete type (see below) as their first
+argument and use that as the return type. Note that these methods will throw an
+error if the type `T` doesn't match with the type of data declared in the file's
+header.
 
 The function `readsachdr` reads just the header from a SAC file, returning an
 instance of `Header`.
