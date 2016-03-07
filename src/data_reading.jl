@@ -9,22 +9,22 @@ function readsac(f::IOStream)
     hdr = readsachdr(f)
 
     if hdr.iftype == itime && hdr.leven
-        readsac_eventime(f, hdr)
+        readsac(EvenTimeSeries, f, hdr)
     elseif hdr.iftype == itime && !hdr.leven
-        readsac_uneventime(f, hdr)
+        readsac(UnevenTimeSeries, f, hdr)
     elseif hdr.iftype == irlim
-        readsac_rlim(f, hdr)
+        readsac(ComplexSpectrum, f, hdr)
     elseif hdr.iftype == iamph
-        readsac_amph(f, hdr)
+        readsac(AmplitudeSpectrum, f, hdr)
     elseif hdr.iftype == ixy
-        readsac_xy(f, hdr)
+        readsac(GeneralXY, f, hdr)
     end
 end
 
 "Read an evenly spaced time series SAC file from the stream `f`. Returns an
 instance of `EvenTimeSeries`."
-readsac_eventime(f::IOStream) = readsac_eventime(f, readsachdr(f))
-function readsac_eventime(f::IOStream, hdr::Header)
+readsac(T::Type{EvenTimeSeries}, f::IOStream) = readsac(T, f, readsachdr(f))
+function readsac(T::Type{EvenTimeSeries}, f::IOStream, hdr::Header)
     if hdr.iftype != itime || !hdr.leven
         error("File's header indicates it is not an even time series.")
     end
@@ -33,8 +33,8 @@ end
 
 "Read an unevenly spaced time series SAC file from the stream `f`. Returns an
 instance of `UnevenTimeSeries`."
-readsac_uneventime(f::IOStream) = readsac_uneventime(f, readsachdr(f))
-function readsac_uneventime(f::IOStream, hdr::Header)
+readsac(T::Type{UnevenTimeSeries}, f::IOStream) = readsac(T, f, readsachdr(f))
+function readsac(T::Type{UnevenTimeSeries}, f::IOStream, hdr::Header)
     if hdr.iftype != itime || hdr.leven
         error("File's header indicates it is not an uneven time series.")
     end
@@ -43,8 +43,8 @@ end
 
 "Read an amplitude/phase SAC file from the stream `f`. Returns an instance of
 `AmplitudeSpectrum`."
-readsac_amph(f::IOStream) = readsac_amph(f, readsachdr(f))
-function readsac_amph(f::IOStream, hdr::Header)
+readsac(T::Type{AmplitudeSpectrum}, f::IOStream) = readsac(T, f, readsachdr(f))
+function readsac(T::Type{AmplitudeSpectrum}, f::IOStream, hdr::Header)
     if hdr.iftype != iamph
         error("File's header indicates it is not an amplitude/phase spectrum.")
     end
@@ -53,8 +53,8 @@ end
 
 "Read a complex/imaginary SAC file from the stream `f`. Returns an instance of
 `ComplexSpectrum`."
-readsac_rlim(f::IOStream) = readsac_rlim(f, readsachdr(f))
-function readsac_rlim(f::IOStream, hdr::Header)
+readsac(T::Type{ComplexSpectrum}, f::IOStream) = readsac(T, f, readsachdr(f))
+function readsac(T::Type{ComplexSpectrum}, f::IOStream, hdr::Header)
     if hdr.iftype != irlim
         error("File's header indicates it is not a real/imaginary spectrum.")
     end
@@ -63,8 +63,8 @@ end
 
 "Read a general XY sac file from the stream `f`. Returns an instance of
 `SACGenrealXY`."
-readsac_xy(f::IOStream) = readsac_xy(f, readsachdr(f))
-function readsac_xy(f::IOStream, hdr::Header)
+readsac(T::Type{GeneralXY}, f::IOStream) = readsac(T, f, readsachdr(f))
+function readsac(T::Type{GeneralXY}, f::IOStream, hdr::Header)
     if hdr.iftype != ixy
         error("File's header indicates it is not a general x vs. y file.")
     end
