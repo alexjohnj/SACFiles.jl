@@ -1,6 +1,7 @@
 # SACFiles.jl
 
 [![Build Status](https://travis-ci.org/alexjohnj/SACFiles.jl.svg?branch=master)](https://travis-ci.org/alexjohnj/SACFiles.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/r54luhqjgncv9cg8/branch/master?svg=true)](https://ci.appveyor.com/project/alexjohnj/sacfiles-jl/branch/master)
 
 A Julia package for working with binary SAC ([Seismic Analysis Code][sac-site])
 files. It supports reading data in little-endian format. One day it'll support
