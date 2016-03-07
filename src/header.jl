@@ -431,6 +431,7 @@ end
 "Read the header data (first 158 words) from the stream `f` returning a
 `Header` instance constructed from it."
 function readsachdr(f::IOStream)
+    seekstart(f)
     bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
