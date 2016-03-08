@@ -17,7 +17,8 @@ completely invalid and can't be read into SAC. The variables are set as follows:
 | Alphanumeric | "BLEEPBLO"   |
 
 The variable `KEVNM` is set to "BLEEPBLOOPBLEEPS" because its longer than the
-other alphanumeric variables. The data section is simply 100 zero values.
+other alphanumeric variables. The header version (`NVHDR`) is set to 6, the only
+valid field. The data section is simply 100 zero values.
 
 ## `test-seismo.sac`
 

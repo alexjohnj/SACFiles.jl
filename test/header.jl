@@ -29,6 +29,8 @@ open("./test-files/test-hexed-header.sac", "r") do f
     map(fieldnames(Header), Header.types) do field, T
         if field == :kevnm
             testhdr.(field) = ascii("BLEEPBLOOPBLEEPS")
+        elseif field == :nvhdr
+            testhdr.(field) = 6
         else
             testhdr.(field) = hdr_hexedvalues[T]
         end
