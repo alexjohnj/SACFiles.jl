@@ -1,6 +1,7 @@
 # Test Files
 
-SAC files used for unit tests.
+SAC files used for unit tests. Files prefixed with `be` are big
+endian. Everything else is little endian.
 
 ## `test-hexed-header.sac`
 
