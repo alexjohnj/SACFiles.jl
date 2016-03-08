@@ -23,6 +23,7 @@ const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
 
 const SAC_WORD_SIZE = 4
 const SAC_HDR_NWORDS = 158
+const SAC_HDR_VERSION = 6
 
 """
 Description
@@ -525,4 +526,16 @@ function decode_alphanumerics!(hdr::Header, bs::Vector{UInt8})
     end
 
     return hdr_alphas
+end
+
+"Determine if a SAC file is in non-native endianness by checking the header
+version number is between 1 and `SAC_HDR_VERSION`. Returns `true` if the file is
+alien."
+function isalienend(f::IOStream)
+    p = position(f)
+    seek(f, 76 * SAC_WORD_SIZE)
+    nvhdr = reinterpret(Int32, readbytes(f, 4))[1]
+    seek(f,p)
+
+    return !(1 <= nvhdr <= SAC_HDR_VERSION)
 end
