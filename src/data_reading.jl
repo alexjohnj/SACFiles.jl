@@ -75,12 +75,15 @@ end
 second data (might be empty) sections. Return type `Tuple{Array{Float32,1},
 Array{Float32,1}}."
 function readsac_data(f::IOStream, npts::Int32)
+    needswap = isalienend(f)
     seek(f, DATA_START)
+
     data1 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
     if eof(f)
-        return (data1, Float32[])
+        return needswap ? (map!(bswap, data1), Float32[]) : (data1, Float32[])
     end
+
     data2 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
 
-    return (data1, data2)
+    return needswap ? (map!(bswap, data1), map!(bswap, data2)) : (data1, data2)
 end

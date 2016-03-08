@@ -10,6 +10,9 @@ let expected_data = zeros(Float32, 100)
         @test_approx_eq readsac(f).data expected_data
         @test_approx_eq readsac(EvenTimeSeries, f).data expected_data
     end
+
+    # Test on a big endian file
+    @test_approx_eq readsac("./test-files/be-delta-etime.sac").data expected_data
 end
 
 # Test reading an unevenly spaced time series file.
