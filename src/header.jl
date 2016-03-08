@@ -433,13 +433,14 @@ end
 `Header` instance constructed from it."
 function readsachdr(f::IOStream)
     seekstart(f)
+    needswap = isalienend(f)
     bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
-    decode_floats!(hdr, bs)
-    decode_integers!(hdr, bs)
-    decode_enumerations!(hdr, bs)
-    decode_logicals!(hdr, bs)
+    decode_floats!(hdr, bs, needswap)
+    decode_integers!(hdr, bs, needswap)
+    decode_enumerations!(hdr, bs, needswap)
+    decode_logicals!(hdr, bs, needswap)
     decode_alphanumerics!(hdr, bs)
 
     return hdr
@@ -454,9 +455,12 @@ end
 "Decode the floating type header variables from the header bytes `bs` and set
 the appropriate fields in `hdr`. Returns an `Array{Float32,1}` of decoded
 floats."
-function decode_floats!(hdr::Header, bs::Vector{UInt8})
+function decode_floats!(hdr::Header, bs::Vector{UInt8}, needswap=false)
     # Floats take up words 0 through 69 of the header
     hdr_floats = reinterpret(Float32, bs[1:SAC_WORD_SIZE * (69+1)])
+    if needswap
+        map!(bswap, hdr_floats)
+    end
 
     for (idx, field) in enumerate(fieldnames(Header)[1:70])
         hdr.(field) = hdr_floats[idx]
@@ -467,9 +471,12 @@ end
 
 "Decode the integer type header variables from the header bytes `bs` and set the
 appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
-function decode_integers!(hdr::Header, bs::Vector{UInt8})
+function decode_integers!(hdr::Header, bs::Vector{UInt8}, needswap=false)
     # Integers take up words 70 through 84 of the header
     hdr_integers = reinterpret(Int32, bs[SAC_WORD_SIZE * 70 + 1 : SAC_WORD_SIZE * (84+1)])
+    if needswap
+        map!(bswap, hdr_integers)
+    end
 
     for (idx, field) in enumerate(fieldnames(Header)[71:85])
         hdr.(field) = hdr_integers[idx]
@@ -481,10 +488,14 @@ end
 "Decode the enumeration type header variables from the header bytes `bs` and set
 the appropriate fields in `hdr`. Returns an `Array{HeaderEnum,1}` of decoded
 enumerations."
-function decode_enumerations!(hdr::Header, bs::Vector{UInt8})
+function decode_enumerations!(hdr::Header, bs::Vector{UInt8}, needswap=false)
     # Enumerations take up words 85 through 104 of the header
-    hdr_enumerations = reinterpret(HeaderEnum, bs[SAC_WORD_SIZE * 85 + 1 : SAC_WORD_SIZE * (104+1)])
+    rawhdr_enumerations = reinterpret(Int32, bs[SAC_WORD_SIZE * 85 + 1 : SAC_WORD_SIZE * (104+1)])
+    if needswap
+        map!(bswap, rawhdr_enumerations)
+    end
 
+    hdr_enumerations = map(HeaderEnum, rawhdr_enumerations)
     for (idx, field) in enumerate(fieldnames(Header)[86:105])
         hdr.(field) = hdr_enumerations[idx]
     end
@@ -494,12 +505,16 @@ end
 
 "Decode the logical type header variables from the header bytes `bs` and set the
 appropriate fields in `hdr`. Returns an `Array{Bool,1}` of decoded bools.`"
-function decode_logicals!(hdr::Header, bs::Vector{UInt8})
+function decode_logicals!(hdr::Header, bs::Vector{UInt8}, needswap=false)
     # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
     # we convert them to Int32s first and then to Bools.
+    rawhdr_logicals = reinterpret(Int32, bs[SAC_WORD_SIZE * 105 + 1 : SAC_WORD_SIZE * (109+1)])
+    if needswap
+        map!(bswap, rawhdr_logicals)
+    end
 
     # We AND with 1 here to convert undefined bools (12345) to false
-    hdr_logicals = map(Bool, reinterpret(Int32, bs[SAC_WORD_SIZE * 105 + 1 : SAC_WORD_SIZE * (109+1)]) & 1)
+    hdr_logicals = map(Bool, rawhdr_logicals & 1)
     for (idx, field) in enumerate(fieldnames(Header)[106:110])
         hdr.(field) = hdr_logicals[idx]
     end
