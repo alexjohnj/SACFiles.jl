@@ -4,8 +4,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/r54luhqjgncv9cg8/branch/master?svg=true)](https://ci.appveyor.com/project/alexjohnj/sacfiles-jl/branch/master)
 
 A Julia package for working with binary SAC ([Seismic Analysis Code][sac-site])
-files. It supports reading data in little-endian format. One day it'll support
-writing data too.
+files. It supports reading data in either endianness although it's only been
+tested on a little endian system. One day it'll support writing data too.
 
 [sac-site]: http://ds.iris.edu/ds/nodes/dmc/software/downloads/sac/
 
