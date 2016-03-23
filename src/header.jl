@@ -446,104 +446,60 @@ function _readsachdr_binary(f::IOStream)
     bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
-    decode_floats!(hdr, bs, needswap)
-    decode_integers!(hdr, bs, needswap)
-    decode_enumerations!(hdr, bs, needswap)
-    decode_logicals!(hdr, bs, needswap)
-    decode_alphanumerics!(hdr, bs)
+    hdrvals = vcat(_decodehdrdata(Float32, bs, needswap),
+                   _decodehdrdata(Int32, bs, needswap),
+                   _decodehdrdata(HeaderEnum, bs, needswap),
+                   _decodehdrdata(Bool, bs, needswap),
+                   _decodehdrdata(ASCIIString, bs))
+
+    for (field, val) in zip(fieldnames(hdr), hdrvals)
+        hdr.(field) = val
+    end
 
     return hdr
 end
 
-"Decode the floating type header variables from the header bytes `bs` and set
-the appropriate fields in `hdr`. Returns an `Array{Float32,1}` of decoded
-floats."
-function decode_floats!(hdr::Header, bs::Vector{UInt8}, needswap=false)
-    # Floats take up words 0 through 69 of the header
-    hdr_floats = reinterpret(Float32, bs[1:SAC_WORD_SIZE * (69+1)])
-    if needswap
-        map!(bswap, hdr_floats)
-    end
+"""
+    _decodehdrdata(T::Type, bs::Vector{UInt8}, offset::Integer, nwords::Integer, needswap=false)
 
-    for (idx, field) in enumerate(fieldnames(Header)[1:70])
-        hdr.(field) = hdr_floats[idx]
-    end
+Decode data of a given type from an array of bytes that make up a SAC file's
+header. Returns an array of decoded values in the order they appear in the
+header.
 
-    return hdr_floats
+## Arguments
+
+- `T::Type` - The type of data to decode
+- `bs::Vector{UInt8}` - The header bytes to decode
+- `offset::Integer` - The offset from the start of `bs` to read from in words (0 = from the start).
+- `nwords::Integer` - The number of words to read from the header.
+- `;needswap=false` - `true` if the data needs byte swapping.
+
+---
+
+    _decodehdrdata(T::Type{Float32}, bs::Vector{UInt8}, needswap=false)
+    _decodehdrdata(T::Type{Int32}, bs::Vector{UInt8}, needswap=false)
+    _decodehdrdata(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false)
+    _decodehdrdata(T::Type{Bool}, bs::Vector{UInt8}, needswap=false)
+
+Decode data of type `T` from the bytes `bs` that make up the header of a SAC
+file. All the fields of type `T` are decoded. Returns an array of values in the
+order they appear in the header.
+"""
+_decodehdrdata(T::Type{Float32}, bs::Vector{UInt8}, needswap=false) = _decodehdrdata(Float32, bs, 0, 70, needswap)
+_decodehdrdata(T::Type{Int32}, bs::Vector{UInt8}, needswap=false) = _decodehdrdata(Int32, bs, 70, 15, needswap)
+_decodehdrdata(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false) = reinterpret(HeaderEnum, _decodehdrdata(Int32, bs, 85, 20, needswap))
+_decodehdrdata(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) = map(Bool, _decodehdrdata(Int32, bs, 105, 5, needswap) & 1)
+function _decodehdrdata(T::Type, bs::Vector{UInt8}, offset::Integer, nwords::Integer, needswap=false)
+    decdata = reinterpret(T, bs[(SAC_WORD_SIZE * offset) + 1 : SAC_WORD_SIZE * (offset + nwords)])
+    return needswap ? map(bswap, decdata) : decdata
 end
+function _decodehdrdata(T::Type{ASCIIString}, bs::Vector{UInt8})
+    decdata = Array(ASCIIString, 23)
+    decdata[1] = ascii(bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112])
+    decdata[2] = ascii(bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116])
+    decdata[3:end] = [ascii(bs[(SAC_WORD_SIZE * n) + 1 : SAC_WORD_SIZE * (n+2)]) for n in 116:2:156]
 
-"Decode the integer type header variables from the header bytes `bs` and set the
-appropriate fields in `hdr`. Returns an `Array{Int32,1}` of decoded integers."
-function decode_integers!(hdr::Header, bs::Vector{UInt8}, needswap=false)
-    # Integers take up words 70 through 84 of the header
-    hdr_integers = reinterpret(Int32, bs[SAC_WORD_SIZE * 70 + 1 : SAC_WORD_SIZE * (84+1)])
-    if needswap
-        map!(bswap, hdr_integers)
-    end
-
-    for (idx, field) in enumerate(fieldnames(Header)[71:85])
-        hdr.(field) = hdr_integers[idx]
-    end
-
-    return hdr_integers
-end
-
-"Decode the enumeration type header variables from the header bytes `bs` and set
-the appropriate fields in `hdr`. Returns an `Array{HeaderEnum,1}` of decoded
-enumerations."
-function decode_enumerations!(hdr::Header, bs::Vector{UInt8}, needswap=false)
-    # Enumerations take up words 85 through 104 of the header
-    rawhdr_enumerations = reinterpret(Int32, bs[SAC_WORD_SIZE * 85 + 1 : SAC_WORD_SIZE * (104+1)])
-    if needswap
-        map!(bswap, rawhdr_enumerations)
-    end
-
-    hdr_enumerations = map(HeaderEnum, rawhdr_enumerations)
-    for (idx, field) in enumerate(fieldnames(Header)[86:105])
-        hdr.(field) = hdr_enumerations[idx]
-    end
-
-    return hdr_enumerations
-end
-
-"Decode the logical type header variables from the header bytes `bs` and set the
-appropriate fields in `hdr`. Returns an `Array{Bool,1}` of decoded bools.`"
-function decode_logicals!(hdr::Header, bs::Vector{UInt8}, needswap=false)
-    # Logicals take up words 105 to 109 of the header. They're 4 bytes long so
-    # we convert them to Int32s first and then to Bools.
-    rawhdr_logicals = reinterpret(Int32, bs[SAC_WORD_SIZE * 105 + 1 : SAC_WORD_SIZE * (109+1)])
-    if needswap
-        map!(bswap, rawhdr_logicals)
-    end
-
-    # We AND with 1 here to convert undefined bools (12345) to false
-    hdr_logicals = map(Bool, rawhdr_logicals & 1)
-    for (idx, field) in enumerate(fieldnames(Header)[106:110])
-        hdr.(field) = hdr_logicals[idx]
-    end
-
-    return hdr_logicals
-end
-
-"Decode the alphanumeric type header variables from the header bytes `bs` ans
-set the appropriate fields in `hdr`. Returns an `Array{ASCIIString,1}` of
-decoded strings."
-function decode_alphanumerics!(hdr::Header, bs::Vector{UInt8})
-    # Alphanumeric variables take up words 110 through 157 of the header. With
-    # the exception of "KENVM", they're all two words (8 characters) long. That
-    # one's four words (16 characters) long.
-
-    alpha_bs = bs[SAC_WORD_SIZE * 110 + 1 : SAC_WORD_SIZE * (157+1)]
-    hdr_alphas = Array(ASCIIString, 23)
-    hdr_alphas[1] = ascii(alpha_bs[1:SAC_WORD_SIZE * 2]) # first two words of alphanumeric header
-    hdr_alphas[2] = ascii(alpha_bs[SAC_WORD_SIZE * 2 + 1 : SAC_WORD_SIZE * (7-1)]) # Next four words of alphanumeric header
-    hdr_alphas[3:end] = [ascii(alpha_bs[SAC_WORD_SIZE * n + 1:SAC_WORD_SIZE * (n+2)]) for n in 6:2:46]
-
-    for (idx, field) in enumerate(fieldnames(Header)[111:133])
-        hdr.(field) = hdr_alphas[idx]
-    end
-
-    return hdr_alphas
+    return decdata
 end
 
 "Determine if a SAC file is in non-native endianness by checking the header
