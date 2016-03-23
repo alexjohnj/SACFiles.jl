@@ -78,12 +78,11 @@ function readsac_data(f::IOStream, npts::Int32; ascii=false)
     needswap = isalienend(f)
     seek(f, DATA_START)
 
-    data1 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
+    data1 = decodesacbytes(Float32, readbytes(f, SAC_WORD_SIZE * npts), needswap)
     if eof(f)
-        return needswap ? (map!(bswap, data1), Float32[]) : (data1, Float32[])
+        return (data1, Float32[])
     end
 
-    data2 = reinterpret(Float32, readbytes(f, SAC_WORD_SIZE * npts))
-
-    return needswap ? (map!(bswap, data1), map!(bswap, data2)) : (data1, data2)
+    data2 = decodesacbytes(Float32, readbytes(f, SAC_WORD_SIZE * npts), needswap)
+    return (data1, data2)
 end

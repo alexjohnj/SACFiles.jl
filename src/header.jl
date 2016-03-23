@@ -21,9 +21,8 @@ const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
                                             Bool        => false,
                                             ASCIIString => "-12345  " :: ASCIIString)
 
-const SAC_WORD_SIZE = 4
-const SAC_HDR_NWORDS = 158
 const SAC_HDR_VERSION = 6
+const SAC_HDR_NWORDS = 158
 
 """
 Description
@@ -446,70 +445,17 @@ function _readsachdr_binary(f::IOStream)
     bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
-    hdrvals = vcat(_decodehdrdata(Float32, bs, needswap),
-                   _decodehdrdata(Int32, bs, needswap),
-                   _decodehdrdata(HeaderEnum, bs, needswap),
-                   _decodehdrdata(Bool, bs, needswap),
-                   _decodehdrdata(ASCIIString, bs))
+    hdrvals = vcat(decodesacbytes(Float32, bs[1:SAC_WORD_SIZE * 70], needswap),
+                   decodesacbytes(Int32, bs[(SAC_WORD_SIZE * 70) + 1 : SAC_WORD_SIZE * 85], needswap),
+                   decodesacbytes(HeaderEnum, bs[(SAC_WORD_SIZE * 85) + 1 : SAC_WORD_SIZE * 105], needswap),
+                   decodesacbytes(Bool, bs[(SAC_WORD_SIZE * 105) + 1 : SAC_WORD_SIZE * 110], needswap),
+                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112]),
+                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116], 16),
+                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 116) + 1 : SAC_WORD_SIZE * 158]))
 
     for (field, val) in zip(fieldnames(hdr), hdrvals)
         hdr.(field) = val
     end
 
     return hdr
-end
-
-"""
-    _decodehdrdata(T::Type, bs::Vector{UInt8}, offset::Integer, nwords::Integer, needswap=false)
-
-Decode data of a given type from an array of bytes that make up a SAC file's
-header. Returns an array of decoded values in the order they appear in the
-header.
-
-## Arguments
-
-- `T::Type` - The type of data to decode
-- `bs::Vector{UInt8}` - The header bytes to decode
-- `offset::Integer` - The offset from the start of `bs` to read from in words (0 = from the start).
-- `nwords::Integer` - The number of words to read from the header.
-- `;needswap=false` - `true` if the data needs byte swapping.
-
----
-
-    _decodehdrdata(T::Type{Float32}, bs::Vector{UInt8}, needswap=false)
-    _decodehdrdata(T::Type{Int32}, bs::Vector{UInt8}, needswap=false)
-    _decodehdrdata(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false)
-    _decodehdrdata(T::Type{Bool}, bs::Vector{UInt8}, needswap=false)
-
-Decode data of type `T` from the bytes `bs` that make up the header of a SAC
-file. All the fields of type `T` are decoded. Returns an array of values in the
-order they appear in the header.
-"""
-_decodehdrdata(T::Type{Float32}, bs::Vector{UInt8}, needswap=false) = _decodehdrdata(Float32, bs, 0, 70, needswap)
-_decodehdrdata(T::Type{Int32}, bs::Vector{UInt8}, needswap=false) = _decodehdrdata(Int32, bs, 70, 15, needswap)
-_decodehdrdata(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false) = reinterpret(HeaderEnum, _decodehdrdata(Int32, bs, 85, 20, needswap))
-_decodehdrdata(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) = map(Bool, _decodehdrdata(Int32, bs, 105, 5, needswap) & 1)
-function _decodehdrdata(T::Type, bs::Vector{UInt8}, offset::Integer, nwords::Integer, needswap=false)
-    decdata = reinterpret(T, bs[(SAC_WORD_SIZE * offset) + 1 : SAC_WORD_SIZE * (offset + nwords)])
-    return needswap ? map(bswap, decdata) : decdata
-end
-function _decodehdrdata(T::Type{ASCIIString}, bs::Vector{UInt8})
-    decdata = Array(ASCIIString, 23)
-    decdata[1] = ascii(bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112])
-    decdata[2] = ascii(bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116])
-    decdata[3:end] = [ascii(bs[(SAC_WORD_SIZE * n) + 1 : SAC_WORD_SIZE * (n+2)]) for n in 116:2:156]
-
-    return decdata
-end
-
-"Determine if a SAC file is in non-native endianness by checking the header
-version number is between 1 and `SAC_HDR_VERSION`. Returns `true` if the file is
-alien."
-function isalienend(f::IOStream)
-    p = position(f)
-    seek(f, 76 * SAC_WORD_SIZE)
-    nvhdr = reinterpret(Int32, readbytes(f, 4))[1]
-    seek(f,p)
-
-    return !(1 <= nvhdr <= SAC_HDR_VERSION)
 end
