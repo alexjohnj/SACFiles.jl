@@ -431,7 +431,7 @@ end
 
 "Read the header data (first 158 words) from the stream `f` returning a
 `Header` instance constructed from it."
-function readsachdr(f::IOStream)
+function readsachdr(f::IOStream; ascii=false)
     seekstart(f)
     needswap = isalienend(f)
     bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
@@ -448,8 +448,8 @@ end
 
 "Read the header data (first 158 words) from the file at path `fname` returning
 a `Header` instance constructed from it."
-function readsachdr(fname::AbstractString)
-    return open(readsachdr, fname, "r")
+function readsachdr(fname::AbstractString; kwargs...)
+    open((f) -> readsachdr(f; kwargs...), fname)
 end
 
 "Decode the floating type header variables from the header bytes `bs` and set
