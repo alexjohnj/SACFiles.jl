@@ -7,9 +7,9 @@ Decode the bytes `bs` into the type `T` swapping the byte order if
 `needswap=true`. Returns an array of decoded values in the order they were
 decoded.
 
-    decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, wordsize=8)
+    decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, stringsize=8)
 
-Decode the bytes `bs` into `ASCIIStrings` with each string being `wordsize`
+Decode the bytes `bs` into `ASCIIStrings` with each string being `stringsize`
 bytes long. Returns an array of strings in the order they were decoded.
 """
 decodesacbytes(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false) =
@@ -23,11 +23,12 @@ function decodesacbytes(T::Type, bs::Vector{UInt8}, needswap=false)
     decdata = reinterpret(T, bs)
     return needswap ? map(bswap, decdata) : decdata
 end
-function decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, wordsize::Integer=8)
-    @assert(length(bs) % wordsize == 0,
-            "Length of byte array is not a multiple of $wordsize")
-    return [ascii(bs[(2 * SAC_WORD_SIZE * n) + 1 : div(wordsize, 4) * SAC_WORD_SIZE * (n+1)])
-            for n in 0:1:div(length(bs), wordsize)-1]
+function decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, stringsize::Integer=8)
+    @assert(length(bs) % stringsize == 0,
+            "Length of byte array is not a multiple of $stringsize")
+    nstr = div(length(bs), stringsize)
+    return [ascii(bs[(stringsize * n) + 1 : (stringsize * n) + stringsize])
+            for n in 0:1:nstr-1]
 end
 
 "Determine if a SAC file is in non-native endianness by checking the header
