@@ -1,4 +1,4 @@
-module TestDataReading
+module TestData
 using Base.Test
 using SACFiles
 
