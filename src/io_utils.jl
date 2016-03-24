@@ -14,6 +14,7 @@ bytes long. Returns an array of strings in the order they were decoded.
 """
 decodesacbytes(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false) = reinterpret(HeaderEnum, decodesacbytes(Int32, bs, needswap))
 decodesacbytes(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) = map(Bool, decodesacbytes(Int32, bs, needswap) & 1)
+decodesacbytes(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) = decodesacbytes(Int32, bs, needswap) .!= 0 # SAC treats anything that isn't 0 as true
 function decodesacbytes(T::Type, bs::Vector{UInt8}, needswap=false)
     @assert(length(bs) % 4 == 0, "Length of byte array is not a multiple of 4")
     decdata = reinterpret(T, bs)
