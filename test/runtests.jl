@@ -6,7 +6,7 @@ else
     const Test = BaseTestNext
 end
 
-include("utils.jl")
+include("test_utilities.jl")
 include("header.jl")
 include("data.jl")
 include("io_utils.jl")

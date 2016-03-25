@@ -1,7 +1,7 @@
 module TestHeaders
 using Base.Test
 using SACFiles
-import Utils
+import SACTestUtilities
 
 # Test enums are defined correctly.
 ids = vcat(-12345, 1:50, 52:97, 103)
@@ -39,12 +39,12 @@ open("./test-files/test-hexed-header.sac", "r") do f
 end
 
 # Test header reading functions on a synthetic SAC generated seismogram
-testhdr = Utils.make_test_seismo_hdr()
+testhdr = SACTestUtilities.make_test_seismo_hdr()
 open("./test-files/test-seismo.sac", "r") do f
     inhdr = readsachdr(f)
-    Utils.testhdrequal(inhdr, testhdr)
+    SACTestUtilities.testhdrequal(inhdr, testhdr)
 end
-Utils.testhdrequal(readsachdr("./test-files/test-seismo.sac"), testhdr)
-Utils.testhdrequal(readsachdr("./test-files/be-test-seismo.sac"), testhdr)
+SACTestUtilities.testhdrequal(readsachdr("./test-files/test-seismo.sac"), testhdr)
+SACTestUtilities.testhdrequal(readsachdr("./test-files/be-test-seismo.sac"), testhdr)
 
 end

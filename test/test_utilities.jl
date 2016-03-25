@@ -1,4 +1,4 @@
-module Utils
+module SACTestUtilities
 using Base.Test
 using SACFiles
 
