@@ -73,14 +73,12 @@ end
 
 # Make sure the type-stable functions don't try and read data they shouldn't.
 let rs(f) = readsac(EvenTimeSeries, f)
-    @test_throws ErrorException open(rs, "./test-files/delta-utime.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-amph.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-rlim.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-xy.sac")
 end
 
 let rs(f) = readsac(UnevenTimeSeries, f)
-    @test_throws ErrorException open(rs, "./test-files/delta-etime.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-amph.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-rlim.sac")
     @test_throws ErrorException open(rs, "./test-files/delta-xy.sac")
