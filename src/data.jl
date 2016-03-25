@@ -105,16 +105,27 @@ type GeneralXY <: AbstractSACData
     x::Vector{Float32}
 end
 
+# Maps types onto their Header enums.
 const FILE_TYPE_ENUMS = Dict{Type,HeaderEnum}(EvenTimeSeries    => itime,
                                               UnevenTimeSeries  => itime,
                                               AmplitudeSpectrum => iamph,
                                               ComplexSpectrum   => irlim,
                                               GeneralXY         => ixy)
 
-"Read the SAC file stream `f`. Returns a subtype of `AbstractSACData` determined
-using the file's header's `iftype` and `leven` variables. Note that this
-function isn't type-stable and so shouldn't be used in performance sensitive
-code."
+"""
+    readsac(fname::AbstractString; kwargs...)
+    readsac(f::IOStream; kwargs...)
+
+Read the SAC file at path `fname` or from the stream `f`. The return type is
+determined using the file type declared in the file's header. *Note* this isn't
+type stable.
+
+    readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream; kwargs...)
+
+Read the SAC file of type `T` from the stream `f`. Raises an error if the type
+`T` does not match the file type declared in the file's header. The returned
+type is always of type `T`.
+"""
 readsac(fname::AbstractString; kwargs...) = open((f) -> readsac(f; kwargs...), fname)
 function readsac(f::IOStream; kwargs...)
     hdr = readsachdr(f; kwargs...)
@@ -146,9 +157,13 @@ function readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream, hdr::Header; kwarg
     end
 end
 
-"Reads the data section from a file and returns a tuple containing the first and
-second data (might be empty) sections. Return type `Tuple{Array{Float32,1},
-Array{Float32,1}}."
+"""
+    readsac_data(f::IOStream, npts::Int32; ascii=false)
+
+Read `npts` of the data section from the stream `f`. Will automatically swap the
+byte order of the data if it isn't the host's byte order. Returns a 2-tuple
+containing the first data section and, if present, the second data section.
+"""
 function readsac_data(f::IOStream, npts::Int32; ascii=false)
     needswap = isalienend(f)
     seek(f, DATA_START)
