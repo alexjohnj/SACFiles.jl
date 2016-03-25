@@ -6,12 +6,18 @@ using SACFiles
             let testnums = Float32[-12345:12345;]
                 decnums = SACFiles.decodesacbytes(Float32, reinterpret(UInt8, testnums))
                 @test isapprox(testnums, decnums)
+
+                decnums = SACFiles.decodesacbytes(Float32, reinterpret(UInt8, map(bswap, testnums)), true)
+                @test isapprox(testnums, decnums)
             end
         end
 
         @testset "Int32" begin
             let testnums = Int32[-12345:12345;]
                 decnums = SACFiles.decodesacbytes(Int32, reinterpret(UInt8, testnums))
+                @test testnums == decnums
+
+                decnums = SACFiles.decodesacbytes(Int32, reinterpret(UInt8, map(bswap, testnums)), true)
                 @test testnums == decnums
             end
         end
@@ -22,10 +28,16 @@ using SACFiles
                 decnums = SACFiles.decodesacbytes(Bool, reinterpret(UInt8, testnums))
                 @test testnums == decnums
 
+                decnums = SACFiles.decodesacbytes(Bool, reinterpret(UInt8, map(bswap, testnums)), true)
+                @test testnums == decnums
+
                 # Test that -12345 -> true, or anything else for that matter
                 # (because that's what SAC does)
                 testnums = Int32[1, 0, -12345]
                 decnums = SACFiles.decodesacbytes(Bool, reinterpret(UInt8, testnums))
+                @test [true, false, true] == decnums
+
+                decnums = SACFiles.decodesacbytes(Bool, reinterpret(UInt8, map(bswap, testnums)), true)
                 @test [true, false, true] == decnums
             end
         end
@@ -33,6 +45,11 @@ using SACFiles
         @testset "Enums" begin
             let testnums = collect(instances(HeaderEnum))
                 decnums = SACFiles.decodesacbytes(HeaderEnum, reinterpret(UInt8, testnums))
+                @test testnums == decnums
+
+                decnums = SACFiles.decodesacbytes(HeaderEnum,
+                                                  reinterpret(UInt8, map((e)->bswap(Int32(e)), testnums)),
+                                                  true)
                 @test testnums == decnums
             end
         end
