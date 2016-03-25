@@ -73,5 +73,30 @@ using SACFiles
                 @test string(teststrings...) == decstrings[1]
             end
         end
+
+        @testset "Endianness Tests" begin
+            let endianness = ENDIAN_BOM == 0x04030201 ? :le : :be
+                if endianness == :le
+                    open("./test-files/test-seismo.sac") do f
+                        @test SACFiles.isalienend(f) == false
+                    end
+                    open("./test-files/be-test-seismo.sac") do f
+                        @test SACFiles.isalienend(f) == true
+                    end
+                else
+                    open("./test-files/test-seismo.sac") do f
+                        @test SACFiles.isalienend(f) == true
+                    end
+                    open("./test-files/be-test-seismo.sac") do f
+                        @test SACFiles.isalienend(f) == false
+                    end
+                end
+            end
+            open("./test-files/test-seismo.sac") do f
+                seek(f, 42)
+                SACFiles.isalienend(f)
+                @test position(f) == 42
+            end
+        end
     end
 end
