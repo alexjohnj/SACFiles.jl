@@ -91,8 +91,8 @@ Fields
 ======
 
 - `hdr::Header` - The file's header.
-- `x::Vector{Float32}` - The x variable's data.
 - `y::Vector{Float32}` - The y variable's data.
+- `x::Vector{Float32}` - The x variable's data.
 
 See Also
 ========
@@ -101,8 +101,8 @@ See Also
 """
 type GeneralXY <: AbstractSACData
     hdr::Header
-    x::Vector{Float32}
     y::Vector{Float32}
+    x::Vector{Float32}
 end
 
 "Read the SAC file stream `f`. Returns a subtype of `AbstractSACData` determined
@@ -173,7 +173,7 @@ function readsac(T::Type{GeneralXY}, f::IOStream, hdr::Header; kwargs...)
     if hdr.iftype != ixy
         error("File's header indicates it is not a general x vs. y file.")
     end
-    GeneralXY(hdr, reverse(readsac_data(f, hdr.npts; kwargs...))...)
+    GeneralXY(hdr, readsac_data(f, hdr.npts; kwargs...)...)
 end
 
 "Reads the data section from a file and returns a tuple containing the first and
