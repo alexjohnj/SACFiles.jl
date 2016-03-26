@@ -1,4 +1,5 @@
 using SACFiles
+using SACFiles.parsetext
 
 @testset "IO Utilities Tests" begin
     @testset "Binary Data Decoding" begin
@@ -97,6 +98,49 @@ using SACFiles
                 SACFiles.isalienend(f)
                 @test position(f) == 42
             end
+        end
+    end
+
+    @testset "ASCII Text Parsing" begin
+        @testset "Float32" begin
+            testnums = Float32[-12345, 12345, 3.14159, 2.71]
+            teststring = @sprintf("%15.7f%15.7f\n%15.7f%15.7f", testnums...)
+            decnums = parsetext(Float32, teststring)
+            @test isapprox(testnums, decnums)
+        end
+
+        @testset "Int32" begin
+            testnums = Int32[-12345, 12345, 42, 1337]
+            teststring = @sprintf("%10d%10d\n%10d%10d", testnums...)
+            decnums = parsetext(Int32, teststring)
+            @test testnums == decnums
+        end
+
+        @testset "Bool" begin
+            testnums = [true, false, true, false]
+            teststring = @sprintf("%10d%10d\n%10d%10d", testnums...)
+            decnums = parsetext(Bool, teststring)
+            @test testnums == decnums
+
+            testnums = Int32[1, 0, 1, -12345]
+            teststring = @sprintf("%10d%10d\n%10d%10d", testnums...)
+            decnums = parsetext(Bool, teststring)
+            @test [true, false, true, true] == decnums
+        end
+
+        @testset "Enums" begin
+            testnums = [SACFiles.itime, SACFiles.iday, SACFiles.icaltech,
+                        SACFiles.undefined, SACFiles.ios]
+            teststring = @sprintf("%10d%10d%10d\n%10d%10d", reinterpret(Int32, testnums)...)
+            decnums = parsetext(HeaderEnum, teststring)
+            @test testnums == decnums
+        end
+
+        @testset "Strings" begin
+            teststrings = ["hello", "world", "this", "is", "a", "test!"]
+            teststring = @sprintf("%8s%8s\n%8s%8s%8s%8s", teststrings...)
+            decstrings = parsetext(ASCIIString, teststring, 8)
+            @test teststrings == decstrings
         end
     end
 end

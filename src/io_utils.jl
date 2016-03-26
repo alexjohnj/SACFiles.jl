@@ -42,3 +42,32 @@ function isalienend(f::IOStream)
 
     return !(1 <= nvhdr <= SAC_HDR_VERSION)
 end
+
+"""
+    parsetext(T::Type, text::ASCIIString, colwidth::Integer)
+
+Parse values of type `T` from `text` where each value is `colwidth` columns wide
+in the text. Returns an array of `T`s. Newline characters are stripped from
+`text` before parsing.
+
+Raises an error if the length of `text` is not a multiple of `colwidth` after
+stripping newlines.
+"""
+parsetext(T::Type{Int32}, text::ASCIIString) = parsetext(T, text, 10)
+parsetext(T::Type{Float32}, text::ASCIIString) = parsetext(T, text, 15)
+parsetext(T::Type{HeaderEnum}, text::ASCIIString) = reinterpret(HeaderEnum, parsetext(Int32, text))
+parsetext(T::Type{Bool}, text::ASCIIString) = parsetext(Int32, text) .!= 0
+parsetext(T::Type{ASCIIString}, text::ASCIIString) = parsetext(T, text, 8)
+function parsetext(T::Type, text::ASCIIString, colwidth::Integer)
+    cleantext = replace(text, '\n', "")
+    @assert(length(cleantext) % colwidth == 0,
+            "Text is not a multiple of $colwidth characters wide after stripping newline characters.")
+    readvals = Array(T, div(length(cleantext), colwidth))
+
+    for i in eachindex(readvals)
+        field = cleantext[(i-1) * colwidth + 1 : (i-1) * colwidth + colwidth]
+        readvals[i] = T <: Number ? parse(T, field) : strip(field)
+    end
+
+    return readvals
+end
