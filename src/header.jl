@@ -414,7 +414,7 @@ type Header
         Header(npts, b, e, ftype, even, HEADER_UNDEFINED_VAL[Float32])
     end
 
-    Header() = (hdr = new(); set_undefinedvars!(hdr))
+    Header() = (hdr = new(); set_undefinedvars!(hdr); cleanhdr!(hdr);)
 end
 
 """
@@ -455,6 +455,22 @@ function _readsachdr_binary(f::IOStream)
 
     for (field, val) in zip(fieldnames(hdr), hdrvals)
         hdr.(field) = val
+    end
+
+    cleanhdr!(hdr)
+    return hdr
+end
+
+"""
+    cleanhdr!(hdr::Header)
+
+Clean the string fields of `hdr`. This removes all leading/trailing whitespace
+and strips null characters.
+"""
+function cleanhdr!(hdr::Header)
+    for field in fieldnames(Header)[end-22:end]
+        hdr.(field) = strip(hdr.(field))
+        hdr.(field) = replace(hdr.(field), '\0', "")
     end
 
     return hdr

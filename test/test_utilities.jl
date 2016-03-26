@@ -13,12 +13,12 @@ function make_test_seismo_hdr()
     hdr.o = -41.43 # equivalent of omarker variable
     hdr.a = 10.464 # equivalent of amarker variable
     hdr.iztype = SACFiles.ib
-    hdr.kstnm = rpad("CDV", 8, " ")
+    hdr.kstnm = "CDV"
     hdr.cmpaz = 0
     hdr.cmpinc = 0
     hdr.stla = 4.8e1
     hdr.stlo = -1.2e2
-    hdr.kevnm = rpad("K8108838", 16, " ")
+    hdr.kevnm = "K8108838"
     hdr.evla = 4.8e1
     hdr.evlo = -1.25e2
     hdr.evdp = 1.5e1
