@@ -46,5 +46,15 @@
             SACTestUtilities.testhdrequal(readsachdr("./test-files/test-seismo.sac"), testhdr)
             SACTestUtilities.testhdrequal(readsachdr("./test-files/be-test-seismo.sac"), testhdr)
         end
+
+        @testset "ASCII Files" begin
+            testhdr = SACTestUtilities.make_test_seismo_hdr()
+            open("./test-files/test-seismo.txt") do f
+                inhdr = readsachdr(f, ascii=true)
+                @test position(f) == 1672
+                SACTestUtilities.testhdrequal(inhdr, testhdr)
+            end
+            SACTestUtilities.testhdrequal(readsachdr("./test-files/test-seismo.txt", ascii=true), testhdr)
+        end
     end
 end

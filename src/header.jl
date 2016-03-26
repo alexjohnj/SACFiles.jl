@@ -23,6 +23,14 @@ const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
 
 const SAC_HDR_VERSION = 6
 const SAC_HDR_NWORDS = 158
+# Starting characters for each section of the header (1 indexed). Includes
+# newline characters.
+const SAC_HDR_ASCII_FLOAT_START = 1
+const SAC_HDR_ASCII_INT_START = 1065
+const SAC_HDR_ASCII_ENUM_START = 1218
+const SAC_HDR_ASCII_BOOL_START = 1422
+const SAC_HDR_ASCII_ALPHA_START = 1473
+const SAC_HDR_ASCII_END = 1672
 
 """
 Description
@@ -436,7 +444,25 @@ function readsachdr(f::IOStream; ascii=false)
 end
 
 function _readsachdr_ascii(f)
-    error("TODO: Implement reading ascii headers")
+    seekstart(f)
+    fhdrcontents = ascii(readbytes(f, SAC_HDR_ASCII_END))
+    # For the alphanumeric section of the header, we have to offset from the
+    # start of this section to account for the different length of the kevnm
+    # field.
+    hdrarr = [parsetext(Float32, fhdrcontents[SAC_HDR_ASCII_FLOAT_START:SAC_HDR_ASCII_INT_START-1]);
+              parsetext(Int32, fhdrcontents[SAC_HDR_ASCII_INT_START:SAC_HDR_ASCII_ENUM_START-1]);
+              parsetext(HeaderEnum, fhdrcontents[SAC_HDR_ASCII_ENUM_START:SAC_HDR_ASCII_BOOL_START-1]);
+              parsetext(Bool, fhdrcontents[SAC_HDR_ASCII_BOOL_START:SAC_HDR_ASCII_ALPHA_START-1]);
+              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START:SAC_HDR_ASCII_ALPHA_START+7]);
+              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+8:SAC_HDR_ASCII_ALPHA_START+23], 16);
+              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+25:SAC_HDR_ASCII_END])]
+
+    hdr = Header()
+    for (val, field) in zip(hdrarr, fieldnames(Header))
+        hdr.(field) = val
+    end
+
+    return hdr
 end
 
 function _readsachdr_binary(f::IOStream)
