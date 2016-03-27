@@ -1,4 +1,5 @@
 const DATA_START = 632 # Start byte for a SAC file's data section
+const ASCII_DATA_START = 1672 # Start character for ASCII SAC file's data section
 
 abstract AbstractSACData
 abstract AbstractTimeSeries <: AbstractSACData
@@ -143,7 +144,7 @@ function readsac(f::IOStream; kwargs...)
     end
 end
 
-readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream; kwargs...) = readsac(T, f, readsachdr(f); kwargs...)
+readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream; kwargs...) = readsac(T, f, readsachdr(f; kwargs...); kwargs...)
 function readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream, hdr::Header; kwargs...)
     if hdr.iftype != FILE_TYPE_ENUMS[T]
         error("File's header indicates it is not a $(T)")
@@ -165,6 +166,10 @@ byte order of the data if it isn't the host's byte order. Returns a 2-tuple
 containing the first data section and, if present, the second data section.
 """
 function readsac_data(f::IOStream, npts::Int32; ascii=false)
+    ascii ? _readsac_data_ascii(f, npts) : _readsac_data_binary(f, npts)
+end
+
+function _readsac_data_binary(f::IOStream, npts::Int32)
     needswap = isalienend(f)
     seek(f, DATA_START)
 
@@ -175,4 +180,20 @@ function readsac_data(f::IOStream, npts::Int32; ascii=false)
 
     data2 = decodesacbytes(Float32, readbytes(f, SAC_WORD_SIZE * npts), needswap)
     return (data1, data2)
+end
+
+function _readsac_data_ascii(f::IOStream, npts::Int32)
+    seek(f, ASCII_DATA_START)
+
+    data = readall(f)
+    data = parsetext(Float32, data)
+
+    if length(data) == 2 * npts
+        return (data[1:npts], data[npts+1:end])
+    elseif length(data) == npts
+        return (data, Float32[])
+    else
+        error("Number of data points in file ($(length(data)) does not match
+       the"*"number of points declared in the header ($(hdr.npts)).")
+    end
 end

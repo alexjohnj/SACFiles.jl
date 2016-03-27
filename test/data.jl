@@ -6,7 +6,7 @@ field_mappings = Dict(EvenTimeSeries => Dict("data1" => :data),
                       ComplexSpectrum => Dict("data1" => :data),
                       GeneralXY => Dict("data1" => :y, "data2" => :x))
 
-@testset "Data Tests" begin
+@testset "Data Reading Tests" begin
     for (T, files) in testfile_specs
         data1field = field_mappings[T]["data1"]
         data2field = get(field_mappings[T], "data2", :none)
