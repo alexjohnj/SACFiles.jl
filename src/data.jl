@@ -114,18 +114,21 @@ const FILE_TYPE_ENUMS = Dict{Type,HeaderEnum}(EvenTimeSeries    => itime,
                                               GeneralXY         => ixy)
 
 """
-    readsac(fname::AbstractString; kwargs...)
-    readsac(f::IOStream; kwargs...)
+    readsac(fname::AbstractString; ascii=false)
+    readsac(f::IOStream; ascii=false)
 
 Read the SAC file at path `fname` or from the stream `f`. The return type is
 determined using the file type declared in the file's header. *Note* this isn't
 type stable.
 
-    readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream; kwargs...)
+    readsac{S<:AbstractSACData}(T::Type{S}, f::IOStream; ascii=false)
 
 Read the SAC file of type `T` from the stream `f`. Raises an error if the type
 `T` does not match the file type declared in the file's header. The returned
 type is always of type `T`.
+
+Pass `ascii=true` to read a SAC alpha file. *Note* this uses *significantly*
+more memory than reading a binary SAC file.
 """
 readsac(fname::AbstractString; kwargs...) = open((f) -> readsac(f; kwargs...), fname)
 function readsac(f::IOStream; kwargs...)

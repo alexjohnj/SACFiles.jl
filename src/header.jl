@@ -436,8 +436,15 @@ function set_undefinedvars!(hdr::Header)
     return hdr
 end
 
-"Read the header data (first 158 words) from the stream `f` returning a
-`Header` instance constructed from it."
+"""
+    readsachdr(fname::AbstractString; ascii=false)
+    readsachdr(f::IOStream; ascii=false)
+
+Read the header data (first 158 words/632 bytes) from the file named `fname` or
+the stream `f`. Returns a `Header` instance constructed from the data.
+
+Pass `ascii=true` to read the header of a SAC alpha file.
+"""
 readsachdr(fname::AbstractString; kwargs...) = open((f) -> readsachdr(f; kwargs...), fname)
 function readsachdr(f::IOStream; ascii=false)
     ascii ? _readsachdr_ascii(f) : _readsachdr_binary(f)
