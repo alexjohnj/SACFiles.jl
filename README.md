@@ -3,9 +3,10 @@
 [![Build Status](https://travis-ci.org/alexjohnj/SACFiles.jl.svg?branch=master)](https://travis-ci.org/alexjohnj/SACFiles.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/r54luhqjgncv9cg8/branch/master?svg=true)](https://ci.appveyor.com/project/alexjohnj/sacfiles-jl/branch/master)
 
-A Julia package for working with binary SAC ([Seismic Analysis Code][sac-site])
-files. It supports reading data in either endianness although it's only been
-tested on a little endian system. One day it'll support writing data too.
+A Julia package for reading binary or ASCII SAC
+([Seismic Analysis Code][sac-site]) files. It supports reading binary data in
+either endianness although it's only been tested on a little endian system. One
+day it'll support writing data too.
 
 [sac-site]: http://ds.iris.edu/ds/nodes/dmc/software/downloads/sac/
 
@@ -47,20 +48,23 @@ fields are.
 ### Reading Files
 
 The function `readsac` is used to read a SAC file into a data structure. There's
-three sets of methods for this function. The first two are
-`readsac(f::IOStream)` and `readsac(fname::AbstractString)`. These return a
+three sets of methods for this function. The first two are `readsac(f::IOStream;
+ascii=false)` and `readsac(fname::AbstractString; ascii=false)`. These return a
 subtype of `AbstractSACData` initialised with the contents of the file. These
 functions figure out the concrete type using the header of the file but they
 aren't type-stable as a result.
 
 For type-stability, there are the `readsac(T::Type{<:AbstractSACData},
-f::IOStream)` methods. These accept a concrete type (see below) as their first
-argument and use that as the return type. Note that these methods will throw an
-error if the type `T` doesn't match with the type of data declared in the file's
-header.
+f::IOStream; ascii=false)` methods. These accept a concrete type (see below) as
+their first argument and use that as the return type. Note that these methods
+will throw an error if the type `T` doesn't match with the type of data declared
+in the file's header.
+
+To read an ASCII SAC file, pass `ascii=true` to the methods. Be warned that the
+parsing code isn't efficient and will use **a lot** of memory for large files.
 
 The function `readsachdr` reads just the header from a SAC file, returning an
-instance of `Header`.
+instance of `Header`. It also accepts an `ascii=true` keyword argument.
 
 ### Types
 
