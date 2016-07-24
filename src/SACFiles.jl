@@ -6,7 +6,7 @@ export EvenTimeSeries, UnevenTimeSeries, AmplitudeSpectrum, ComplexSpectrum, Gen
 export readsac
 
 include("header.jl")
-include("data.jl")
-include("io_utils.jl")
+include("data_types.jl")
+include("io.jl")
 
 end # module

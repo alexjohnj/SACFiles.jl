@@ -1,7 +1,7 @@
 using SACFiles
 using SACFiles.parsetext
 
-@testset "IO Utilities Tests" begin
+@testset "IO" begin
     @testset "Binary Data Decoding" begin
         @testset "Float32" begin
             let testnums = Float32[-12345:12345;]
@@ -141,6 +141,96 @@ using SACFiles.parsetext
             teststring = @sprintf("%8s%8s\n%8s%8s%8s%8s", teststrings...)
             decstrings = parsetext(ASCIIString, teststring, 8)
             @test teststrings == decstrings
+        end
+    end
+
+    @testset "Header File Reading" begin
+        @testset "Binary Files" begin
+            # Make sure we're reading the whole header
+            open("./test-files/test-seismo.sac", "r") do f
+                _ = readsachdr(f)
+                @test position(f) == 632
+            end
+
+            # Test header reading on a hexed file.
+            open("./test-files/test-hexed-header.sac", "r") do f
+                inhdr = readsachdr(f)
+                hdr_hexedvalues = Dict{Type, Any}(Float32     => Float32(1337.0),
+                                                Int32       => Int32(1337),
+                                                HeaderEnum  => SACFiles.inucl,
+                                                ASCIIString => ascii("BLEEPBLO"),
+                                                Bool        => true)
+                testhdr = Header()
+
+                map(fieldnames(Header), Header.types) do field, T
+                    if field == :kevnm
+                        testhdr.(field) = ascii("BLEEPBLOOPBLEEPS")
+                    elseif field == :nvhdr
+                        testhdr.(field) = 6
+                    else
+                        testhdr.(field) = hdr_hexedvalues[T]
+                    end
+                    @test inhdr.(field) == testhdr.(field)
+                end
+            end
+
+            # Test header reading functions on a synthetic SAC generated seismogram
+            testhdr = SACTestUtilities.make_test_seismo_hdr()
+            open("./test-files/test-seismo.sac", "r") do f
+                inhdr = readsachdr(f)
+                SACTestUtilities.testhdrequal(inhdr, testhdr)
+            end
+            SACTestUtilities.testhdrequal(readsachdr("./test-files/test-seismo.sac"), testhdr)
+            SACTestUtilities.testhdrequal(readsachdr("./test-files/be-test-seismo.sac"), testhdr)
+        end
+
+        @testset "ASCII Files" begin
+            testhdr = SACTestUtilities.make_test_seismo_hdr()
+            open("./test-files/test-seismo.txt") do f
+                inhdr = readsachdr(f, ascii=true)
+                @test position(f) == 1672
+                SACTestUtilities.testhdrequal(inhdr, testhdr)
+            end
+            SACTestUtilities.testhdrequal(readsachdr("./test-files/test-seismo.txt", ascii=true), testhdr)
+        end
+    end
+
+    @testset "Data File Reading" begin
+        field_mappings = Dict(EvenTimeSeries => Dict("data1" => :data),
+                            UnevenTimeSeries => Dict("data1" => :ddata, "data2" => :idata),
+                            AmplitudeSpectrum => Dict("data1" => :ampdata, "data2" => :phasedata),
+                            ComplexSpectrum => Dict("data1" => :data),
+                            GeneralXY => Dict("data1" => :y, "data2" => :x))
+
+        for (T, files) in testfile_specs
+            data1field = field_mappings[T]["data1"]
+            data2field = get(field_mappings[T], "data2", :none)
+
+            for file in files
+                # Test reading from file name
+                readdata = readsac(file["fname"], ascii=file["ascii"])
+                @test isapprox(readdata.(data1field), file["data1"])
+                if data2field != :none && haskey(file, "data2")
+                    @test isapprox(readdata.(data2field), file["data2"])
+                end
+
+                # Test reading from IOStream
+                open(file["fname"]) do f
+                    # Non-type stable
+                    readdata = readsac(f, ascii=file["ascii"])
+                    @test isapprox(readdata.(data1field), file["data1"])
+                    if data2field != :none && haskey(file, "data2")
+                        @test isapprox(readdata.(data2field), file["data2"])
+                    end
+
+                    # Type stable
+                    readdata = readsac(T, f, ascii=file["ascii"])
+                    @test isapprox(readdata.(data1field), file["data1"])
+                    if data2field != :none && haskey(file, "data2")
+                        @test isapprox(readdata.(data2field), file["data2"])
+                    end
+                end
+            end
         end
     end
 end

@@ -436,63 +436,6 @@ function set_undefinedvars!(hdr::Header)
     return hdr
 end
 
-"""
-    readsachdr(fname::AbstractString; ascii=false)
-    readsachdr(f::IOStream; ascii=false)
-
-Read the header data (first 158 words/632 bytes) from the file named `fname` or
-the stream `f`. Returns a `Header` instance constructed from the data.
-
-Pass `ascii=true` to read the header of a SAC alpha file.
-"""
-readsachdr(fname::AbstractString; kwargs...) = open((f) -> readsachdr(f; kwargs...), fname)
-function readsachdr(f::IOStream; ascii=false)
-    ascii ? _readsachdr_ascii(f) : _readsachdr_binary(f)
-end
-
-function _readsachdr_ascii(f)
-    seekstart(f)
-    fhdrcontents = ascii(readbytes(f, SAC_HDR_ASCII_END))
-    # For the alphanumeric section of the header, we have to offset from the
-    # start of this section to account for the different length of the kevnm
-    # field.
-    hdrarr = [parsetext(Float32, fhdrcontents[SAC_HDR_ASCII_FLOAT_START:SAC_HDR_ASCII_INT_START-1]);
-              parsetext(Int32, fhdrcontents[SAC_HDR_ASCII_INT_START:SAC_HDR_ASCII_ENUM_START-1]);
-              parsetext(HeaderEnum, fhdrcontents[SAC_HDR_ASCII_ENUM_START:SAC_HDR_ASCII_BOOL_START-1]);
-              parsetext(Bool, fhdrcontents[SAC_HDR_ASCII_BOOL_START:SAC_HDR_ASCII_ALPHA_START-1]);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START:SAC_HDR_ASCII_ALPHA_START+7]);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+8:SAC_HDR_ASCII_ALPHA_START+23], 16);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+25:SAC_HDR_ASCII_END])]
-
-    hdr = Header()
-    for (val, field) in zip(hdrarr, fieldnames(Header))
-        hdr.(field) = val
-    end
-
-    return hdr
-end
-
-function _readsachdr_binary(f::IOStream)
-    seekstart(f)
-    needswap = isalienend(f)
-    bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
-    hdr = Header()
-
-    hdrvals = vcat(decodesacbytes(Float32, bs[1:SAC_WORD_SIZE * 70], needswap),
-                   decodesacbytes(Int32, bs[(SAC_WORD_SIZE * 70) + 1 : SAC_WORD_SIZE * 85], needswap),
-                   decodesacbytes(HeaderEnum, bs[(SAC_WORD_SIZE * 85) + 1 : SAC_WORD_SIZE * 105], needswap),
-                   decodesacbytes(Bool, bs[(SAC_WORD_SIZE * 105) + 1 : SAC_WORD_SIZE * 110], needswap),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112]),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116], 16),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 116) + 1 : SAC_WORD_SIZE * 158]))
-
-    for (field, val) in zip(fieldnames(hdr), hdrvals)
-        hdr.(field) = val
-    end
-
-    cleanhdr!(hdr)
-    return hdr
-end
 
 """
     cleanhdr!(hdr::Header)
