@@ -106,7 +106,7 @@ function _readsachdr_ascii(f)
 
     hdr = Header()
     for (val, field) in zip(hdrarr, fieldnames(Header))
-        hdr.(field) = val
+        setfield!(hdr, field, val)
     end
 
     return hdr
@@ -127,7 +127,7 @@ function _readsachdr_binary(f::IOStream)
                    decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 116) + 1 : SAC_WORD_SIZE * 158]))
 
     for (field, val) in zip(fieldnames(hdr), hdrvals)
-        hdr.(field) = val
+        setfield!(hdr, field, val)
     end
 
     cleanhdr!(hdr)

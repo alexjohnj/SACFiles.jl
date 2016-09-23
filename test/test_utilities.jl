@@ -49,9 +49,9 @@ end
 function testhdrequal(hdra::Header, hdrb::Header)
     map(fieldnames(Header), Header.types) do field, T
         if T == Float32
-            @test_approx_eq hdra.(field) hdrb.(field)
+            @test_approx_eq getfield(hdra, field) getfield(hdrb, field)
         else
-            @test hdra.(field) == hdrb.(field)
+            @test getfield(hdra, field) == getfield(hdrb, field)
         end
     end
     return nothing

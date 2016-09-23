@@ -164,13 +164,13 @@ using SACFiles.parsetext
 
                 map(fieldnames(Header), Header.types) do field, T
                     if field == :kevnm
-                        testhdr.(field) = ascii("BLEEPBLOOPBLEEPS")
+                        setfield!(testhdr, field, ascii("BLEEPBLOOPBLEEPS"))
                     elseif field == :nvhdr
-                        testhdr.(field) = 6
+                        setfield!(testhdr, field, Int32(6))
                     else
-                        testhdr.(field) = hdr_hexedvalues[T]
+                        setfield!(testhdr, field, hdr_hexedvalues[T])
                     end
-                    @test inhdr.(field) == testhdr.(field)
+                    @test getfield(inhdr, field) == getfield(testhdr, field)
                 end
             end
 
@@ -209,25 +209,25 @@ using SACFiles.parsetext
             for file in files
                 # Test reading from file name
                 readdata = readsac(file["fname"], ascii=file["ascii"])
-                @test isapprox(readdata.(data1field), file["data1"])
+                @test isapprox(getfield(readdata, data1field), file["data1"])
                 if data2field != :none && haskey(file, "data2")
-                    @test isapprox(readdata.(data2field), file["data2"])
+                    @test isapprox(getfield(readdata, data2field), file["data2"])
                 end
 
                 # Test reading from IOStream
                 open(file["fname"]) do f
                     # Non-type stable
                     readdata = readsac(f, ascii=file["ascii"])
-                    @test isapprox(readdata.(data1field), file["data1"])
+                    @test isapprox(getfield(readdata, data1field), file["data1"])
                     if data2field != :none && haskey(file, "data2")
-                        @test isapprox(readdata.(data2field), file["data2"])
+                        @test isapprox(getfield(readdata, data2field), file["data2"])
                     end
 
                     # Type stable
                     readdata = readsac(T, f, ascii=file["ascii"])
-                    @test isapprox(readdata.(data1field), file["data1"])
+                    @test isapprox(getfield(readdata, data1field), file["data1"])
                     if data2field != :none && haskey(file, "data2")
-                        @test isapprox(readdata.(data2field), file["data2"])
+                        @test isapprox(getfield(readdata, data2field), file["data2"])
                     end
                 end
             end

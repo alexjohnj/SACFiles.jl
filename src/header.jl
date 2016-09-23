@@ -17,7 +17,7 @@ each enum. For a list of values, run `instances(HeaderEnum)`.
 # Undefined values for different data types, as given in the SAC manual.
 const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
                                             Int32       => Int32(-12345),
-                                            HeaderEnum  => Int32(-12345),
+                                            HeaderEnum  => undefined,
                                             Bool        => false,
                                             ASCIIString => "-12345  " :: ASCIIString)
 
@@ -431,7 +431,7 @@ specified in the SAC manual.
 """
 function set_undefinedvars!(hdr::Header)
     for (field, T) in zip(fieldnames(Header), Header.types)
-        hdr.(field) = HEADER_UNDEFINED_VAL[T]
+        setfield!(hdr, field, HEADER_UNDEFINED_VAL[T])
     end
     return hdr
 end
@@ -445,8 +445,8 @@ and strips null characters.
 """
 function cleanhdr!(hdr::Header)
     for field in fieldnames(Header)[end-22:end]
-        hdr.(field) = strip(hdr.(field))
-        hdr.(field) = replace(hdr.(field), '\0', "")
+        setfield!(hdr, field, strip(getfield(hdr, field)))
+        setfield!(hdr, field, replace(getfield(hdr, field), '\0', ""))
     end
 
     return hdr
