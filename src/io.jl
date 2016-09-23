@@ -37,7 +37,7 @@ alien."
 function isalienend(f::IOStream)
     p = position(f)
     seek(f, 76 * SAC_WORD_SIZE)
-    nvhdr = reinterpret(Int32, readbytes(f, 4))[1]
+    nvhdr = reinterpret(Int32, read(f, 4))[1]
     seek(f,p)
 
     return !(1 <= nvhdr <= SAC_HDR_VERSION)
@@ -92,7 +92,7 @@ end
 
 function _readsachdr_ascii(f)
     seekstart(f)
-    fhdrcontents = ascii(readbytes(f, SAC_HDR_ASCII_END))
+    fhdrcontents = ascii(read(f, SAC_HDR_ASCII_END))
     # For the alphanumeric section of the header, we have to offset from the
     # start of this section to account for the different length of the kevnm
     # field.
@@ -115,7 +115,7 @@ end
 function _readsachdr_binary(f::IOStream)
     seekstart(f)
     needswap = isalienend(f)
-    bs = readbytes(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
+    bs = read(f, SAC_WORD_SIZE * SAC_HDR_NWORDS)
     hdr = Header()
 
     hdrvals = vcat(decodesacbytes(Float32, bs[1:SAC_WORD_SIZE * 70], needswap),
@@ -201,19 +201,19 @@ function _readsac_data_binary(f::IOStream, npts::Int32)
     needswap = isalienend(f)
     seek(f, DATA_START)
 
-    data1 = decodesacbytes(Float32, readbytes(f, SAC_WORD_SIZE * npts), needswap)
+    data1 = decodesacbytes(Float32, read(f, SAC_WORD_SIZE * npts), needswap)
     if eof(f)
         return (data1, Float32[])
     end
 
-    data2 = decodesacbytes(Float32, readbytes(f, SAC_WORD_SIZE * npts), needswap)
+    data2 = decodesacbytes(Float32, read(f, SAC_WORD_SIZE * npts), needswap)
     return (data1, data2)
 end
 
 function _readsac_data_ascii(f::IOStream, npts::Int32)
     seek(f, ASCII_DATA_START)
 
-    data = readall(f)
+    data = readstring(f)
     data = parsetext(Float32, data)
 
     if length(data) == 2 * npts
