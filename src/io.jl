@@ -27,7 +27,7 @@ function decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, stringsize::Int
     @assert(length(bs) % stringsize == 0,
             "Length of byte array is not a multiple of $stringsize")
     nstr = div(length(bs), stringsize)
-    return [ascii(bs[(stringsize * n) + 1 : (stringsize * n) + stringsize])
+    return [ascii(String(bs[(stringsize * n) + 1 : (stringsize * n) + stringsize]))
             for n in 0:1:nstr-1]
 end
 
@@ -92,7 +92,7 @@ end
 
 function _readsachdr_ascii(f)
     seekstart(f)
-    fhdrcontents = ascii(read(f, SAC_HDR_ASCII_END))
+    fhdrcontents = ascii(String(read(f, SAC_HDR_ASCII_END)))
     # For the alphanumeric section of the header, we have to offset from the
     # start of this section to account for the different length of the kevnm
     # field.
