@@ -19,7 +19,7 @@ const HEADER_UNDEFINED_VAL = Dict{Type,Any}(Float32     => Float32(-12345.0),
                                             Int32       => Int32(-12345),
                                             HeaderEnum  => undefined,
                                             Bool        => false,
-                                            ASCIIString => "-12345  " :: ASCIIString)
+                                            String => "-12345  " :: String)
 
 const SAC_HDR_VERSION = 6
 const SAC_HDR_NWORDS = 158
@@ -51,7 +51,7 @@ each one. The different header types become the following Julia types:
 - Integer      => Int32
 - Enumerated   => HeaderEnum
 - Logical      => Bool
-- Alphanumeric => ASCIIString
+- Alphanumeric => String
 
 Constructors
 ============
@@ -354,51 +354,51 @@ type Header
     unused18::Bool
     # Alphanumerics
     "Station name."
-    kstnm::ASCIIString
+    kstnm::String
     "Event name."
-    kevnm::ASCIIString
+    kevnm::String
     "If nuclear related then the hole identifier. Otherwise, the location identifier."
-    khole::ASCIIString
+    khole::String
     "Event origin time identification."
-    ko::ASCIIString
+    ko::String
     "First arrival time identification."
-    ka::ASCIIString
+    ka::String
     "User defined time pick identifier."
-    kt0::ASCIIString
+    kt0::String
     "User defined time pick identifier."
-    kt1::ASCIIString
+    kt1::String
     "User defined time pick identifier."
-    kt2::ASCIIString
+    kt2::String
     "User defined time pick identifier."
-    kt3::ASCIIString
+    kt3::String
     "User defined time pick identifier."
-    kt4::ASCIIString
+    kt4::String
     "User defined time pick identifier."
-    kt5::ASCIIString
+    kt5::String
     "User defined time pick identifier."
-    kt6::ASCIIString
+    kt6::String
     "User defined time pick identifier."
-    kt7::ASCIIString
+    kt7::String
     "User defined time pick identifier."
-    kt8::ASCIIString
+    kt8::String
     "User defined time pick identifier."
-    kt9::ASCIIString
+    kt9::String
     "End of event time identification."
-    kf::ASCIIString
+    kf::String
     "User defined variable storage area."
-    kuser0::ASCIIString
+    kuser0::String
     "User defined variable storage area."
-    kuser1::ASCIIString
+    kuser1::String
     "User defined variable storage area."
-    kuser2::ASCIIString
+    kuser2::String
     "Channel name."
-    kcmpnm::ASCIIString
+    kcmpnm::String
     "Name of the seismic network."
-    knetwk::ASCIIString
+    knetwk::String
     "Date data was read onto computer."
-    kdatrd::ASCIIString
+    kdatrd::String
     "Generic name of recording instrument."
-    kinst::ASCIIString
+    kinst::String
 
     function Header(npts::Integer, b::AbstractFloat, e::AbstractFloat, ftype::HeaderEnum,
                     even::Bool, delta::AbstractFloat)

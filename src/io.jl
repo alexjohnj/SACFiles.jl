@@ -7,15 +7,13 @@ Decode the bytes `bs` into the type `T` swapping the byte order if
 `needswap=true`. Returns an array of decoded values in the order they were
 decoded.
 
-    decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, stringsize=8)
+    decodesacbytes(T::Type{String}, bs::Vector{UInt8}, stringsize=8)
 
-Decode the bytes `bs` into `ASCIIStrings` with each string being `stringsize`
+Decode the bytes `bs` into `Strings` with each string being `stringsize`
 bytes long. Returns an array of strings in the order they were decoded.
 """
 decodesacbytes(T::Type{HeaderEnum}, bs::Vector{UInt8}, needswap=false) =
     reinterpret(HeaderEnum, decodesacbytes(Int32, bs, needswap))
-decodesacbytes(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) =
-    map(Bool, decodesacbytes(Int32, bs, needswap) & 1)
 decodesacbytes(T::Type{Bool}, bs::Vector{UInt8}, needswap=false) =
     decodesacbytes(Int32, bs, needswap) .!= 0 # SAC treats anything that isn't 0 as true
 function decodesacbytes(T::Type, bs::Vector{UInt8}, needswap=false)
@@ -23,7 +21,7 @@ function decodesacbytes(T::Type, bs::Vector{UInt8}, needswap=false)
     decdata = reinterpret(T, bs)
     return needswap ? map(bswap, decdata) : decdata
 end
-function decodesacbytes(T::Type{ASCIIString}, bs::Vector{UInt8}, stringsize::Integer=8)
+function decodesacbytes(T::Type{String}, bs::Vector{UInt8}, stringsize::Integer=8)
     @assert(length(bs) % stringsize == 0,
             "Length of byte array is not a multiple of $stringsize")
     nstr = div(length(bs), stringsize)
@@ -44,7 +42,7 @@ function isalienend(f::IOStream)
 end
 
 """
-    parsetext(T::Type, text::ASCIIString, colwidth::Integer)
+    parsetext(T::Type, text::String, colwidth::Integer)
 
 Parse values of type `T` from `text` where each value is `colwidth` columns wide
 in the text. Returns an array of `T`s. Newline characters are stripped from
@@ -53,12 +51,12 @@ in the text. Returns an array of `T`s. Newline characters are stripped from
 Raises an error if the length of `text` is not a multiple of `colwidth` after
 stripping newlines.
 """
-parsetext(T::Type{Int32}, text::ASCIIString) = parsetext(T, text, 10)
-parsetext(T::Type{Float32}, text::ASCIIString) = parsetext(T, text, 15)
-parsetext(T::Type{HeaderEnum}, text::ASCIIString) = reinterpret(HeaderEnum, parsetext(Int32, text))
-parsetext(T::Type{Bool}, text::ASCIIString) = parsetext(Int32, text) .!= 0
-parsetext(T::Type{ASCIIString}, text::ASCIIString) = parsetext(T, text, 8)
-function parsetext(T::Type, text::ASCIIString, colwidth::Integer)
+parsetext(T::Type{Int32}, text::String) = parsetext(T, text, 10)
+parsetext(T::Type{Float32}, text::String) = parsetext(T, text, 15)
+parsetext(T::Type{HeaderEnum}, text::String) = reinterpret(HeaderEnum, parsetext(Int32, text))
+parsetext(T::Type{Bool}, text::String) = parsetext(Int32, text) .!= 0
+parsetext(T::Type{String}, text::String) = parsetext(T, text, 8)
+function parsetext(T::Type, text::String, colwidth::Integer)
     cleantext = replace(text, '\n', "")
     @assert(length(cleantext) % colwidth == 0,
             "Text is not a multiple of $colwidth characters wide after stripping newline characters.")
@@ -100,9 +98,9 @@ function _readsachdr_ascii(f)
               parsetext(Int32, fhdrcontents[SAC_HDR_ASCII_INT_START:SAC_HDR_ASCII_ENUM_START-1]);
               parsetext(HeaderEnum, fhdrcontents[SAC_HDR_ASCII_ENUM_START:SAC_HDR_ASCII_BOOL_START-1]);
               parsetext(Bool, fhdrcontents[SAC_HDR_ASCII_BOOL_START:SAC_HDR_ASCII_ALPHA_START-1]);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START:SAC_HDR_ASCII_ALPHA_START+7]);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+8:SAC_HDR_ASCII_ALPHA_START+23], 16);
-              parsetext(ASCIIString, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+25:SAC_HDR_ASCII_END])]
+              parsetext(String, fhdrcontents[SAC_HDR_ASCII_ALPHA_START:SAC_HDR_ASCII_ALPHA_START+7]);
+              parsetext(String, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+8:SAC_HDR_ASCII_ALPHA_START+23], 16);
+              parsetext(String, fhdrcontents[SAC_HDR_ASCII_ALPHA_START+25:SAC_HDR_ASCII_END])]
 
     hdr = Header()
     for (val, field) in zip(hdrarr, fieldnames(Header))
@@ -122,9 +120,9 @@ function _readsachdr_binary(f::IOStream)
                    decodesacbytes(Int32, bs[(SAC_WORD_SIZE * 70) + 1 : SAC_WORD_SIZE * 85], needswap),
                    decodesacbytes(HeaderEnum, bs[(SAC_WORD_SIZE * 85) + 1 : SAC_WORD_SIZE * 105], needswap),
                    decodesacbytes(Bool, bs[(SAC_WORD_SIZE * 105) + 1 : SAC_WORD_SIZE * 110], needswap),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112]),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116], 16),
-                   decodesacbytes(ASCIIString, bs[(SAC_WORD_SIZE * 116) + 1 : SAC_WORD_SIZE * 158]))
+                   decodesacbytes(String, bs[(SAC_WORD_SIZE * 110) + 1 : SAC_WORD_SIZE * 112]),
+                   decodesacbytes(String, bs[(SAC_WORD_SIZE * 112) + 1 : SAC_WORD_SIZE * 116], 16),
+                   decodesacbytes(String, bs[(SAC_WORD_SIZE * 116) + 1 : SAC_WORD_SIZE * 158]))
 
     for (field, val) in zip(fieldnames(hdr), hdrvals)
         setfield!(hdr, field, val)
